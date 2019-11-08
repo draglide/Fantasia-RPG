@@ -1,0 +1,46 @@
+package MobSpawnControl
+/*import IterableRegion
+import ClosureTimers
+import Mob
+import HashMap
+import HashSet
+public HashMap<int, HashSet<Mob>> mobList = new HashMap<int, HashSet<Mob>>()
+public trigger array MSC
+public trigger array MSE
+public HashSet<unit> array pUList
+init
+    rect gg_rct_temp = null
+    let area1 = new IRegion()
+    area1.addRect(gg_rct_temp)
+    region array reg
+    MSC[0] = CreateTrigger()
+        ..registerEnterRegion(reg[0], Filter(function isPlayerUnit))
+        ..addAction(function sM1)
+    MSE[0] = CreateTrigger()
+        ..registerLeaveRegion(reg[0], Filter(function isPlayerUnit))
+        ..addAction(function dM1)
+function dM1()
+    for m in mobList.getAndRemove(0)
+        m.destr()
+    pUList[0].remove(GetLeavingUnit())
+function sM1()
+    if pUList[0].isEmpty()
+        pUList[0].add(GetEnteringUnit())
+        for i = 1 to 20
+            let m = new Mob(0, 60.0, TRUE)
+            if mobList.has(0)
+                mobList.get(0).add(m)
+            else
+                mobList.put(0, new HashSet<Mob>())
+                mobList.get(0).add(m)
+        doPeriodically(0.1) (CallbackPeriodic cb) ->
+            if pUList[0].isEmpty()
+                destroy cb
+            for m in mobList.get(0)
+                unit temp = m.getUnit()
+                if temp.getCurrentOrder() != 851984 or temp.getCurrentOrder() != 851983
+                    temp.issuePointOrderById(851984, m.getReg().getRandomLocInReg())
+    else
+        pUList[0].add(GetEnteringUnit())
+function isPlayerUnit() returns boolean
+    return GetEnteringUnit().getOwner().isAllyOf(Player(0))*/

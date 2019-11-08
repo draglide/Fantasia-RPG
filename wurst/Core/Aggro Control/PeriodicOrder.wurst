@@ -1,0 +1,11 @@
+package PeriodicOrder
+/*import ClosureTimers
+import MobSpawnControl
+init
+    doPeriodically(0.1) (CallbackPeriodic cb) ->
+        for mob in mobList.get(0)
+            mob.getUnit().issueTargetOrder("attack", mob.getAggro().getMostAggro())
+            mob.getAggro().periodicUpdate()
+        if mobList.size() < 1
+            destroy cb
+*/

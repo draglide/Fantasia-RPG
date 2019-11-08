@@ -1,0 +1,21 @@
+package Cerberus
+/*import BossGen
+import GameMode*/
+import ClosureEvents
+import ClosureTimers
+import SpellGenerator
+init
+    /*let cerberus = new Boss(S2I("h000"))
+    cerberus.getUnit().setMaxHP(R2I(cerberus.getUnit().getMaxHP()*HP_MULTIPLIER))
+    cerberus.getUnit().setBaseDamage(R2I(cerberus.getUnit().getBaseDamage(1)*DIFF_MULTIPLIER), 1)*/
+    EventListener.onTargetCast(CERBE_CHARGE_ID) (unit caster, unit target) ->
+        texttag t = CreateTextTag()
+            ..setText("Glancing at "+target.getOwner().getName(), 10)
+            ..setPos(caster.getPos().withRealZ(caster))
+        doAfter(1.0) () ->
+            t.destr()
+        caster.pause()
+        caster.setFacing(caster.getPos().angleTo(target.getPos()))
+        doPeriodicallyTimed(0.05, 2) (CallbackCounted cb) ->
+            caster.setAnimation(6)
+            caster.setPos(caster.getPos().polarOffset(caster.getFacingAngle(), 40))

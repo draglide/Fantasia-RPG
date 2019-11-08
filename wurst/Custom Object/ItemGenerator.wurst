@@ -1,0 +1,16 @@
+package ItemGenerator
+import ObjectIdGenerator
+import ItemObjEditing
+public constant ITEM_ID = compiletime(ITEM_ID_GEN.next())
+@compiletime function gen()
+    new ItemDefinition(ITEM_ID, 'rst1')
+        ..setGoldCost(0)
+        ..setLumberCost(0)
+        ..setAbilities("")
+        ..setName("")
+        ..setDescription("")
+        ..setTooltipExtended("")
+        ..setDroppedWhenCarrierDies(FALSE)
+        ..setTooltipBasic("")
+        ..setModelUsed("")
+        ..setInterfaceIcon("")

@@ -1,0 +1,23 @@
+package AggroBar
+public class AggroBar
+    private texttag t
+    construct(vec3 pos, unit u)
+        t = createTTEx(pos, "''''''''''''''''''''''''''''''''''''''''''''''''''", 10)
+        t..setPermanent(true)
+         ..setVisibility(localPlayer == GetOwningPlayer(u))
+    function updateAgg(real pctg, boolean hA)
+        string text = (hA ? "|cffff0000" : "|cffffff00")
+        for i = 0 to R2I(pctg/2)
+            text += "'"
+        text += "|r|cFFFFFFFF"
+        for i = 0 to 50-R2I(pctg/2)
+            text += "'"
+        text += "|r"
+        t.setText(text, 10)
+    function updateLoc(vec3 pos)
+        t.setPos(pos)
+    function destr()
+        t.destr()
+        destroy this
+    ondestroy
+        t.destr()

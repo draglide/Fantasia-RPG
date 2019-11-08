@@ -1,0 +1,99 @@
+---
+projectName: Fantasia RPG
+buildMapData:
+  name: Fantasia RPG
+  fileName: Fantasia RPG S1 alpha 1.0
+  author: Adi
+  scenarioData:
+    description: Custom RPG with class tree, skill tree, forging, crafting and many stuff # The map's description
+    suggestedPlayers: 4-9 Player
+  optionsFlags:
+    hideMinimapPreview: true
+    maskedAreasPartiallyVisible: true
+    showWavesOnCliffShores: true
+    showWavesOnRollingShores: true
+    useItemClassificationSystem: true
+  players:
+  - id: 0
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 1
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 2
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 3
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 4
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 5
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 6
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 7
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 8
+    name: DefaultPlayer
+    race: HUMAN
+    controller: USER
+    fixedStartLoc: false
+  - id: 10
+    name: Gods
+    race: ORC
+    controller: COMPUTER
+    fixedStartLoc: false
+  - id: 11
+    name: Monster
+    race: ORC
+    controller: COMPUTER
+    fixedStartLoc: false
+  forces:
+  - name: God Slayer
+    playerIds:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    flags:
+      allied: true
+      alliedVictory: true
+      sharedVision: true
+      sharedControl: false
+      sharedControlAdvanced: false
+  - name: Heavens Wrath
+    playerIds:
+    - 10
+    - 11
+    flags:
+      allied: true
+      alliedVictory: true
+      sharedVision: true
+      sharedControl: false
+      sharedControlAdvanced: false

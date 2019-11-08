@@ -1,0 +1,10 @@
+package GenericUnit
+public abstract class GUnit
+    protected unit cUnit
+    protected vec2 loc
+    protected real resTime
+    function isAlive() returns boolean
+        return IsUnitAliveBJ(cUnit)
+    abstract function reSpawn()
+    function getUnit() returns unit
+        return cUnit

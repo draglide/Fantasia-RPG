@@ -1,0 +1,86 @@
+package GameMode
+public real HP_MULTIPLIER
+public real DROP_RATE_MULTIPLIER
+public real DAMAGE_REDUCTION
+public string GAME_MODE
+public real DIFF_MULTIPLIER
+public real GOLD_LOST
+public real EXP_LOST
+public real GE_GAIN
+public int EXP_LIMIT
+function varSet(string mode, int pC)
+    GAME_MODE = mode
+    switch pC
+        case 1
+            HP_MULTIPLIER = 1.00
+            DAMAGE_REDUCTION = 0
+            DROP_RATE_MULTIPLIER = 3.0
+        case 2
+            HP_MULTIPLIER = 1.30
+            DAMAGE_REDUCTION = 0
+            DROP_RATE_MULTIPLIER = 3.5
+        case 3
+            HP_MULTIPLIER = 1.60
+            DAMAGE_REDUCTION = 0
+            DROP_RATE_MULTIPLIER = 4.0
+        case 4
+            HP_MULTIPLIER = 1.90
+            DAMAGE_REDUCTION = 0.05
+            DROP_RATE_MULTIPLIER = 4.75
+        case 5
+            HP_MULTIPLIER = 2.15
+            DAMAGE_REDUCTION = 0.05
+            DROP_RATE_MULTIPLIER = 5.5
+        case 6
+            HP_MULTIPLIER = 2.40
+            DAMAGE_REDUCTION = 0.05
+            DROP_RATE_MULTIPLIER = 6.5
+        case 7
+            HP_MULTIPLIER = 2.65
+            DAMAGE_REDUCTION = 0.10
+            DROP_RATE_MULTIPLIER = 7.5
+        case 8
+            HP_MULTIPLIER = 2.85
+            DAMAGE_REDUCTION = 0.10
+            DROP_RATE_MULTIPLIER = 8.75
+        case 9
+            HP_MULTIPLIER = 3.00
+            DAMAGE_REDUCTION = 0.15
+            DROP_RATE_MULTIPLIER = 10.0
+    switch mode
+        case "EASY"
+            DROP_RATE_MULTIPLIER = 0.3
+            DIFF_MULTIPLIER = 0.5
+            GOLD_LOST = 0.25
+            EXP_LOST = 0.0
+            GE_GAIN = 0.4
+            EXP_LIMIT = 2
+        case "NORMAL"
+            DROP_RATE_MULTIPLIER = 1.0
+            DIFF_MULTIPLIER = 1.0
+            GOLD_LOST = 0.50
+            EXP_LOST = 0.0
+            GE_GAIN = 1.0
+            EXP_LIMIT = 3
+        case "HARD"
+            DROP_RATE_MULTIPLIER = 1.0 + R2I((pC+1)/2) * 0.2
+            DIFF_MULTIPLIER = 1.25
+            GOLD_LOST = 0.75
+            EXP_LOST = 0.25
+            GE_GAIN = 1.50
+            EXP_LIMIT = 4
+        case "NIGHTMARE"
+            DROP_RATE_MULTIPLIER = 1.5 + pC * 0.5
+            DIFF_MULTIPLIER = 1.50
+            GOLD_LOST = 0.0
+            EXP_LOST = 0.0
+            GE_GAIN = 2.0
+            EXP_LIMIT = 5
+        case "LEGEND"
+            DIFF_MULTIPLIER = 2.0
+            GOLD_LOST = 0.0
+            EXP_LOST = 0.0
+            GE_GAIN = 3.0
+            EXP_LIMIT = 6
+init
+    

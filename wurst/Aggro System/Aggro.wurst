@@ -1,0 +1,44 @@
+package Aggro
+import HashMap
+import AggroBar
+public class Aggro
+    private unit u
+    private let agg = new IterableMap<unit, int>()
+    private let tt = new IterableMap<unit, AggroBar>()
+    construct(unit u)
+        this.u = u
+    function isPatrolling() returns boolean
+        return u.getCurrentOrder() == OrderId("attack")
+    function removeAggro(unit pU)
+        agg.remove(pU)
+        AggroBar ab = tt.getAndRemove(pU)
+        ab.destr()
+    function addAggro(unit pU, int damage)
+        if agg.hasKey(pU)
+            agg.put(pU, agg.get(pU)+damage)
+            tt.get(pU).updateAgg(33, getMostAggro() == pU)
+        else
+            agg.put(pU, damage)
+            let ab = new AggroBar(u.getPos3with(10), pU)
+            tt.put(pU, ab)
+    function periodicUpdate()
+        for ab in tt
+            tt.get(ab).updateLoc(u.getPos3with(10))
+    function getMostAggro() returns unit
+        if agg.size() > 0
+            unit t = null
+            int h = 0
+            for k in agg
+                if agg.get(k) > h
+                    h = agg.get(k)
+                    t = k
+            return t
+        return null
+    function flushMap()
+        agg.flush()
+        for ab in tt
+            tt.getAndRemove(ab).destr()
+    function destr()
+        flushMap()
+        u.remove()
+        destroy this

@@ -1,0 +1,23 @@
+package BossGenerator
+import UnitObjEditing
+import UnitIds
+import ObjectIds
+import SpellGenerator
+@compiletime function gen()
+    new HeroDefinition('HM00', UnitIds.bloodelflieutenant)
+        ..setName("Warrior")
+        ..setAttack1Range(50)
+        ..setAttack1DamageBase(100)
+        ..setAttack1CooldownTime(0.2)
+        ..setAttack1DamageFactorMedium(4)
+        ..setBuildTime(0)
+        ..setAnimationRunSpeed(350)
+        ..setAnimationWalkSpeed(250)
+        ..setAttacksEnabled(1)
+        ..setDefenseBase(0)
+        ..setHideMinimapDisplay(TRUE)
+        ..setIconGameInterface("")
+        ..setLevel(1)
+        ..setSpeedBase(350)
+        ..setArmorType(ArmorType.Normal)
+        ..setHeroAbilities(commaList(CERBE_CHARGE_ID))

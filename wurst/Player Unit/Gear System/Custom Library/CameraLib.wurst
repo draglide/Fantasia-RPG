@@ -1,0 +1,154 @@
+package CameraLib
+import Matrices
+import initlater PlayerUtil
+public constant real DELTAZ_X = 0
+public constant real DELTAZ_Y = 0
+public constant real SCREEN_WIDTH = 0.544
+public constant real SCREEN_HEIGHT = 0.302
+public constant real SCREEN_ASPECT_RATIO = SCREEN_WIDTH/SCREEN_HEIGHT
+public constant integer CAMERA_DUMMY_TYPE = 'e001'
+public constant player CAMERA_DUMMY_PLAYER = Player(bj_PLAYER_NEUTRAL_EXTRA)
+
+public class Camera
+    private real deltaZ = 0
+    private vec3 eye
+    private vec3 at
+    unit target
+    private real dist
+    private real yaw
+    private real pitch
+    private real roll
+    private vec3 axisX
+    private vec3 axisY
+    private vec3 axisZ
+    private mat4 view
+    private mat4 projection
+    private boolean change
+    int custVal
+
+    construct()
+        custVal = 0
+        change = true
+        eye = vec3(0, -922.668, deltaZ + 1367.912)
+        at = vec3(0, 0, deltaZ)
+        dist = 0
+        yaw = 0
+        pitch = 0
+        roll = 0
+        axisX = vec3(0, 0, 0)
+        axisY = vec3(0, 0, 0)
+        axisZ = vec3(0, 0, 0)
+        view = mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        projection = matrix4Perspective2(0.5, 10000, -SCREEN_WIDTH/2, SCREEN_WIDTH/2, -SCREEN_HEIGHT/2, SCREEN_HEIGHT/2)
+        updateDistYawPitch()
+        updateAxisMatrix()
+
+    function win2World(real x, real y, real range) returns vec3
+        return vec3(eye.x + axisZ.x * range + x * axisX.x * SCREEN_WIDTH * range + y * axisY.x * SCREEN_HEIGHT * range,
+                    eye.y + axisZ.y * range + x * axisX.y * SCREEN_WIDTH * range + y * axisY.y * SCREEN_HEIGHT * range,
+                    eye.z + axisZ.z * range + x * axisX.z * SCREEN_WIDTH * range + y * axisY.z * SCREEN_HEIGHT * range)
+
+    function world2Win(real x, real y, real z) returns vec3
+        vec3 pos = vec3(x, y, z)
+        boolean b
+        pos = pos.op_mult(view)
+        b = pos.z < 0
+        pos = pos.op_mult(projection)
+        if b
+            pos.z = -pos.z
+        return pos
+
+    private function updateDistYawPitch()
+        real dx = at.x - eye.x
+        real dy = at.y - eye.y
+        real dz = at.z - eye.z
+        dist = vec3(dx, dy, dz).length()
+        yaw = Atan2(dy, dx)
+        pitch = Atan2(dz, vec2(dx, dy).length())
+    
+    private function updateAxisMatrix()
+        axisZ = at.op_minus(eye).norm()
+        mat3 mat = axisZ.toRotation(angle(-roll))
+        axisX = axisZ.cross(vec3(0, 0, 1)).norm()
+        axisY = axisX.cross(axisZ).op_mult(mat)
+        axisX = axisX.op_mult(mat)
+        view = matrix4Look(eye, axisX, axisY, axisZ)
+    
+    function applyCameraForPlayer(player p, boolean ignoreChange) returns boolean
+        unit dummy = null
+        for user in userList
+            if user.getPlayer() == p
+                dummy = user.getDummyCam()
+        p..setCameraField(CAMERA_FIELD_ROTATION, yaw * RADTODEG, 0)
+         ..setCameraField(CAMERA_FIELD_ANGLE_OF_ATTACK, pitch * RADTODEG, 0)
+         ..setCameraField(CAMERA_FIELD_ROLL, roll * RADTODEG, 0)
+         ..setCameraField(CAMERA_FIELD_TARGET_DISTANCE, dist, 0)
+         ..setCameraTargetControllerNoZ(dummy, vec2(at.x, at.y), false)
+         ..setCameraField(CAMERA_FIELD_ZOFFSET, at.z - deltaZ, 0)
+        if change or ignoreChange
+            change = true
+            return true
+        return false
+
+    function setPosition(real x, real y, real z)
+        eye.x += x - at.x
+        eye.y += y - at.y
+        eye.z += z - at.z
+        at.x = x
+        at.y = y
+        at.z = z
+        change = true
+
+    function setEyeAndAt(real ex, real ey, real ez, real tx, real ty, real tz)
+        eye.x = ex
+        eye.y = ey
+        eye.z = ez
+        at.x = tx
+        at.y = ty
+        at.z = tz
+        updateDistYawPitch()
+        updateAxisMatrix()
+        change = true
+
+    function setYawPitchRoll(real yaw, real pitch, real roll, boolean lock)
+        real z = dist * Sin(pitch)
+        real xy = dist * Cos(pitch)
+        real x = xy * Cos(yaw)
+        real y = xy * Sin(yaw)
+        this.yaw = yaw
+        this.pitch = pitch
+        this.roll = roll
+        if lock
+            at.x = eye.x + x
+            at.y = eye.y + y
+            at.z = eye.z + z
+        else
+            eye.x = at.x - x
+            eye.y = at.y - y
+            eye.z = at.z - z
+        updateAxisMatrix()
+        change = true
+
+    function destr()
+        destroy this
+
+    private function matrix4Perspective1(real fovy, real aspect, real zn, real zf) returns mat4
+        return mat4(2 * zn / fovy,      0,                  0,                      0,
+                    0,                  2 * zn / aspect,    0,                      0,
+                    0,                  0,                  zf / (zf - zn),         1,
+                    0,                  0,                  zn * zf / (zn - zf),    0)
+
+    private function matrix4Perspective2(real n, real f, real r, real l, real t, real b) returns mat4
+        return mat4(2 * n / (r - l),    0,                  (r + l) / (r - l),      0,
+                    0,                  2 * n / (t - b),    (t + b) / (t - b),      0,
+                    0,                  0,                  - (f + n) / (f - n),    - 2 * f * n / (f - n),
+                    0,                  0,                  - 1,                    0)
+
+    private function matrix4Look(vec3 posCam, vec3 axisX, vec3 axisY, vec3 axisZ) returns mat4
+        return mat4(axisX.x,            axisY.x,            axisZ.x,            0,
+                    axisX.y,            axisY.y,            axisZ.y,            0,
+                    axisX.z,            axisY.z,            axisZ.z,            0,
+                    -axisX.dot(posCam), -axisY.dot(posCam), -axisZ.dot(posCam), 1)
+
+    function getCameraDeltaZ() returns real
+        return deltaZ

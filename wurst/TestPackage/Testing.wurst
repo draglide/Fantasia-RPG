@@ -1,0 +1,7 @@
+package Testing
+import PUnit
+init
+    unit u = createUnit(Player(0), 'HM00', vec2(4766, 4555), angle(0))
+    let p = new PUnit(u, FALSE)
+    p.setStatBoard()
+    createDestructable('CI00', vec2(4766, 4555), 0.0.asAngleDegrees(), 5.0, 0)

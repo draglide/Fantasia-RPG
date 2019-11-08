@@ -1,0 +1,397 @@
+package CustomStat
+
+enum MainStat
+    POWER
+    AGILITY
+    ENERGY
+
+enum CustomStat
+    CONSTITUTION
+    ENDURANCE
+    DURABILITY
+    STRENGTH
+    DEXTERITY
+    REFLEXES
+    INTELLIGENCE
+    WISDOM
+    SPIRIT
+
+enum CustomAtt
+    PHYSICAL_POWER
+    PHYSICAL_CRIT_CHANCE
+    PHYSICAL_CRIT_POWER
+    MAGICAL_POWER
+    MAGICAL_CRIT_CHANCE
+    MAGICAL_CRIT_POWER
+    ATTACK_SPEED
+    MOVE_SPEED
+    BLOCK_CHANCE
+    DODGE_CHANCE
+    MAGIC_RESIST
+    HP_REGEN
+    MP_REGEN
+    AGGRO_MULTIPLIER
+    SPELL_DODGE
+    HP
+    MP
+    ARMOR
+    GOLD
+    EXP
+
+public class MStat
+    private real array[3] mainStat
+    private CAtt customAtt
+    construct(CAtt cAtt)
+        reset()
+        customAtt = cAtt
+
+    function getPoint(MainStat m) returns real
+        switch m
+            case POWER
+                return mainStat[0]
+            case AGILITY
+                return mainStat[1]
+            case ENERGY
+                return mainStat[2]
+
+    function setPoint(MainStat m, real val)
+        switch m
+            case POWER
+                mainStat[0] = val
+            case AGILITY
+                mainStat[1] = val
+            case ENERGY
+                mainStat[2] = val
+
+    protected function addPoint(MainStat m, real p)
+        switch m
+            case POWER
+                mainStat[0] += p
+                customAtt.addPoint(CustomAtt.PHYSICAL_POWER, p*0.7)
+                customAtt.addPoint(CustomAtt.MAGICAL_POWER, p*0.5)
+                customAtt.addPoint(CustomAtt.HP_REGEN, p*0.05)
+                customAtt.addPoint(CustomAtt.AGGRO_MULTIPLIER, p*0.1)
+            case AGILITY
+                mainStat[1] += p
+                customAtt.addPoint(CustomAtt.ATTACK_SPEED, p*0.005)
+                customAtt.addPoint(CustomAtt.MOVE_SPEED, p*0.2)
+                customAtt.addPoint(CustomAtt.DODGE_CHANCE, p*0.025)
+            case ENERGY
+                mainStat[2] += p
+                customAtt.addPoint(CustomAtt.MAGICAL_POWER, p*0.7)
+                customAtt.addPoint(CustomAtt.MP, p*1.0)
+                customAtt.addPoint(CustomAtt.MP_REGEN, p*0.015)
+    
+    protected function reset()
+        mainStat[0] = 0
+        mainStat[1] = 0
+        mainStat[2] = 0
+
+public class CStat
+    private int uStat
+    private real array[9] stats
+    private CAtt customAtt
+    private MStat mainStat
+
+    construct(unit u)
+        customAtt = new CAtt(true)
+        mainStat = new MStat(customAtt)
+        resetPoint(u)
+
+    function getAtt() returns CAtt
+        return customAtt
+
+    function getMStat() returns MStat
+        return mainStat
+
+    function getPoint(CustomStat c) returns real
+        switch c
+            case CONSTITUTION
+                return stats[0]
+            case ENDURANCE
+                return stats[1]
+            case DURABILITY
+                return stats[2]
+            case STRENGTH
+                return stats[3]
+            case DEXTERITY
+                return stats[4]
+            case REFLEXES
+                return stats[5]
+            case INTELLIGENCE
+                return stats[6]
+            case WISDOM
+                return stats[7]
+            case SPIRIT
+                return stats[8]
+            default
+                return 0
+
+    private function addPoint(CustomStat c, real p)
+        switch c
+            case CONSTITUTION
+                stats[0] += p
+                customAtt.addPoint(CustomAtt.HP, p*6)
+                customAtt.addPoint(CustomAtt.HP_REGEN, p*0.1)
+                mainStat.addPoint(MainStat.POWER, p*0.2)
+            case ENDURANCE
+                stats[1] += p
+                customAtt.addPoint(CustomAtt.BLOCK_CHANCE, p*0.125)
+                customAtt.addPoint(CustomAtt.ARMOR, p*0.75)
+                mainStat.addPoint(MainStat.POWER, p*0.4)
+            case DURABILITY
+                stats[2] += p
+                customAtt.addPoint(CustomAtt.HP_REGEN, p*0.25)
+                customAtt.addPoint(CustomAtt.ARMOR, p*0.35)
+                customAtt.addPoint(CustomAtt.MAGIC_RESIST, p*0.075)
+                mainStat.addPoint(MainStat.POWER, p*0.3)
+                mainStat.addPoint(MainStat.ENERGY, p*0.15)
+            case STRENGTH
+                stats[3] += p
+                customAtt.addPoint(CustomAtt.PHYSICAL_POWER, p*0.6)
+                customAtt.addPoint(CustomAtt.PHYSICAL_CRIT_CHANCE, p*0.08)
+                customAtt.addPoint(CustomAtt.PHYSICAL_CRIT_POWER, p*0.4)
+                customAtt.addPoint(CustomAtt.AGGRO_MULTIPLIER, p*-0.05)
+                mainStat.addPoint(MainStat.POWER, p*0.3)
+            case DEXTERITY
+                stats[4] += p
+                customAtt.addPoint(CustomAtt.PHYSICAL_POWER, p*1.7)
+                customAtt.addPoint(CustomAtt.AGGRO_MULTIPLIER, p*-0.05)
+                mainStat.addPoint(MainStat.AGILITY, p*0.3)
+            case REFLEXES
+                stats[5] += p
+                customAtt.addPoint(CustomAtt.DODGE_CHANCE, p*0.075)
+                customAtt.addPoint(CustomAtt.BLOCK_CHANCE, p*0.025)
+                customAtt.addPoint(CustomAtt.SPELL_DODGE, p*0.025)
+                mainStat.addPoint(MainStat.AGILITY, p*0.4)
+            case INTELLIGENCE
+                stats[6] += p
+                customAtt.addPoint(CustomAtt.MAGICAL_POWER, p*0.8)
+                customAtt.addPoint(CustomAtt.MAGICAL_CRIT_CHANCE, p*0.08)
+                customAtt.addPoint(CustomAtt.MAGICAL_CRIT_POWER, p*0.4)
+                customAtt.addPoint(CustomAtt.AGGRO_MULTIPLIER, p*-0.02)
+                mainStat.addPoint(MainStat.ENERGY, p*0.3)
+            case WISDOM
+                stats[7] += p
+                customAtt.addPoint(CustomAtt.MAGICAL_POWER, p*1.9)
+                customAtt.addPoint(CustomAtt.MP, p*0.2)
+                customAtt.addPoint(CustomAtt.AGGRO_MULTIPLIER, p*-0.05)
+                mainStat.addPoint(MainStat.ENERGY, p*0.4)
+            case SPIRIT
+                stats[8] += p
+                customAtt.addPoint(CustomAtt.HP, p*1.5)
+                customAtt.addPoint(CustomAtt.MP, p*1.0)
+                customAtt.addPoint(CustomAtt.HP_REGEN, p*0.1)
+                customAtt.addPoint(CustomAtt.MP_REGEN, p*0.05)
+                mainStat.addPoint(MainStat.POWER, p*0.2)
+                mainStat.addPoint(MainStat.AGILITY, p*0.2)
+                mainStat.addPoint(MainStat.ENERGY, p*0.2)
+
+    function addStat(CustomStat c, int amount) returns string
+        if amount > uStat
+            return "NOT ENOUGH STATS TO SPENT"
+        else
+            addPoint(c, amount*1.0)
+            uStat -= amount
+            return null
+
+    function levelUp(unit u)
+        addPoint(u, 1)
+
+    private function addPoint(unit u, int p)
+        switch u.getTypeId()
+            case 'HM00'
+                addPoint(CustomStat.CONSTITUTION, 5.0*p)
+                addPoint(CustomStat.ENDURANCE, 3.0*p)
+                addPoint(CustomStat.STRENGTH, 3.0*p)
+            case 'HM01'
+                addPoint(CustomStat.CONSTITUTION, 2.0*p)
+                addPoint(CustomStat.DEXTERITY, 5.0*p)
+                addPoint(CustomStat.STRENGTH, 3.0*p)
+                addPoint(CustomStat.SPIRIT, 1.0*p)
+            case 'HM02'
+                addPoint(CustomStat.CONSTITUTION, 3.0*p)
+                addPoint(CustomStat.WISDOM, 5.0*p)
+                addPoint(CustomStat.SPIRIT, 3.0*p)
+            case 'HM03'
+                addPoint(CustomStat.CONSTITUTION, 2.0*p)
+                addPoint(CustomStat.WISDOM, 5.0*p)
+                addPoint(CustomStat.INTELLIGENCE, 4.0*p)
+            case 'HM04'
+                addPoint(CustomStat.CONSTITUTION, 3.0*p)
+                addPoint(CustomStat.DEXTERITY, 5.0*p)
+                addPoint(CustomStat.STRENGTH, 1.0*p)
+                addPoint(CustomStat.SPIRIT, 2.0*p)
+
+    function resetPoint(unit u)
+        customAtt.resetHero()
+        mainStat.reset()
+        for i = 0 to 8
+            stats[i] = 1
+        addPoint(u, u.getLevel())
+        uStat = 6*u.getLevel()
+
+public class CAtt
+    private real array[20] att
+    construct(boolean hero)
+        if hero
+            resetHero()
+        else
+            reset()
+
+    function getPoint(CustomAtt a) returns real
+        switch a
+            case PHYSICAL_POWER
+                return att[0]
+            case PHYSICAL_CRIT_CHANCE
+                return att[1]
+            case PHYSICAL_CRIT_POWER
+                return att[2]
+            case MAGICAL_POWER
+                return att[3]
+            case MAGICAL_CRIT_CHANCE
+                return att[4]
+            case MAGICAL_CRIT_POWER
+                return att[5]
+            case ATTACK_SPEED
+                return att[6]
+            case MOVE_SPEED
+                return att[7]
+            case BLOCK_CHANCE
+                return att[8]
+            case DODGE_CHANCE
+                return att[9]
+            case MAGIC_RESIST
+                return att[10]
+            case HP_REGEN
+                return att[11]
+            case MP_REGEN
+                return att[12]
+            case AGGRO_MULTIPLIER
+                return att[13]
+            case SPELL_DODGE
+                return att[14]
+            case HP
+                return att[15]
+            case MP
+                return att[16]
+            case ARMOR
+                return att[17]
+            case GOLD
+                return att[18]
+            case EXP
+                return att[19]
+            default
+                return 0
+
+    function setPoint(CustomAtt a, real val)
+        switch a
+            case PHYSICAL_POWER
+                att[0] = val
+            case PHYSICAL_CRIT_CHANCE
+                att[1] = val
+            case PHYSICAL_CRIT_POWER
+                att[2] = val
+            case MAGICAL_POWER
+                att[3] = val
+            case MAGICAL_CRIT_CHANCE
+                att[4] = val
+            case MAGICAL_CRIT_POWER
+                att[5] = val
+            case ATTACK_SPEED
+                att[6] = val
+            case MOVE_SPEED
+                att[7] = val
+            case BLOCK_CHANCE
+                att[8] = val
+            case DODGE_CHANCE
+                att[9] = val
+            case MAGIC_RESIST
+                att[10] = val
+            case HP_REGEN
+                att[11] = val
+            case MP_REGEN
+                att[12] = val
+            case AGGRO_MULTIPLIER
+                att[13] = val
+            case SPELL_DODGE
+                att[14] = val
+            case HP
+                att[15] = val
+            case MP
+                att[16] = val
+            case ARMOR
+                att[17] = val
+            case GOLD
+                att[18] = val
+            case EXP
+                att[19] = val
+
+    protected function addPoint(CustomAtt a, real p)
+        switch a
+            case PHYSICAL_POWER
+                att[0] += p
+            case PHYSICAL_CRIT_CHANCE
+                att[1] += p
+            case PHYSICAL_CRIT_POWER
+                att[2] += p
+            case MAGICAL_POWER
+                att[3] += p
+            case MAGICAL_CRIT_CHANCE
+                att[4] += p
+            case MAGICAL_CRIT_POWER
+                att[5] += p
+            case ATTACK_SPEED
+                att[6] += p
+            case MOVE_SPEED
+                att[7] += p
+            case BLOCK_CHANCE
+                att[8] += p
+            case DODGE_CHANCE
+                att[9] += p
+            case MAGIC_RESIST
+                att[10] += p
+            case HP_REGEN
+                att[11] += p
+            case MP_REGEN
+                att[12] += p
+            case AGGRO_MULTIPLIER
+                att[13] += p
+            case SPELL_DODGE
+                att[14] += p
+            case HP
+                att[15] += p
+            case MP
+                att[16] += p
+            case ARMOR
+                att[17] += p
+            case GOLD
+                att[18] += p
+            case EXP
+                att[19] += p
+    
+    protected function reset()
+        for i = 0 to 19
+            att[i] = 0
+
+    protected function resetHero()
+        att[0] = 0 //PP
+        att[1] = 0 //PCC
+        att[2] = 0 //PCP
+        att[3] = 0 //MP
+        att[4] = 0 //MCC
+        att[5] = 0 //MCP
+        att[6] = 0 //AS
+        att[7] = 300 //MS
+        att[8] = 0 //BL
+        att[9] = 0 //DDG
+        att[10] = 0 //MR
+        att[11] = 0 //HPR
+        att[12] = 0 //MPR
+        att[13] = 100 //AGM
+        att[14] = 0 //SD
+        att[15] = 200 //HP
+        att[16] = 50 //MP
+        att[17] = 0 //AR
+        att[18] = 0 //GOLD
+        att[19] = 0 //EXP

@@ -1,0 +1,16 @@
+package EUnit
+import GenericUnit
+import Aggro
+public abstract class EUnit extends GUnit
+    protected Aggro a
+    protected boolean patroller
+    construct(int uID, real resT)
+        resTime = resT
+        cUnit = createUnit(Player(11), uID, loc, GetRandomReal(1, 360).asAngleDegrees())
+        a = new Aggro(cUnit)
+    function isPatroller() returns boolean
+        return patroller
+    function canRespawn() returns boolean
+        return this.resTime >= 0
+    function getAggro() returns Aggro
+        return a

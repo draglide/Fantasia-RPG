@@ -1,0 +1,470 @@
+package UserInterface
+import CameraLib
+import ClosureTimers
+import LinkedList
+import PlayerUtil
+module UIConfig
+    static constant int DUMMY_TYPE = 'uidm'
+    static constant int WINDOW_DUMMY = 'uiwn'
+    static constant int RACE_BORDERS_START = 'D201'
+    static constant boolean LEFT_CLICK_TIMER = TRUE
+    static constant real LEFT_CLICK_TIMER_RATE = 0.01
+    static constant real LEFT_CLICK_DELAY = 0.6
+    static constant int DESTROYER_FORM_ID = 'Aave'
+    static constant int SKIN_CHANGE_ABILITY = 'Skin'
+    static constant player PLAYER = CAMERA_DUMMY_PLAYER
+
+public destructable dummyTree = null
+trigger trig = CreateTrigger()
+UIButton clickedButton
+player clickingPlayer = null
+LinkedList<UIButton> btnList = new LinkedList<UIButton>()
+LinkedList<UIPicture> picList = new LinkedList<UIPicture>()
+LinkedList<UIText> textList = new LinkedList<UIText>()
+
+interface UI_CONTROL
+    function destr()
+    function show(boolean flag, Camera cam)
+    function update()
+    function setPosition(real minx, real maxy)
+
+public abstract class UI implements UI_CONTROL
+    use UIConfig
+    protected int custVal
+    protected Camera cam
+    protected boolean displayed
+    protected real z
+    construct(real z)
+        custVal = 0
+        displayed = false
+        cam = null
+        this.z = 100 + z
+
+    function getCustVal() returns int
+        return custVal
+
+    function setCustVal(int val)
+        custVal = val
+    
+public class UIButton extends UI
+    int animIdx
+    trigger trigL
+    trigger trigR
+    filterfunc onLClick
+    filterfunc onRClick
+    unit selectedUnit
+    static boolean useDelay = false
+    private boolean disabled
+    private real scale
+    private real centerX
+    private real centerY
+    private real minX
+    private real maxX
+    private real minY
+    private real maxY
+    private real width
+    private real height
+    private unit pic
+    private effect model
+    private int texture
+    private int unitId
+    private static UIButton array unit2Button
+
+    construct(real minx, real maxy, real w, real h, real z, int texture)
+        super(z)
+        this.texture = texture
+        width = w
+        height = h
+        minX = minx
+        maxX = minx + w
+        minY = maxy - h
+        maxY = maxy
+        centerX = minx + w / 2.0
+        centerY = maxy - h / 2.0
+        scale = findModelSize(w, h, this.z)
+        trigL = null
+        trigR = null
+        onLClick = null
+        onRClick = null
+        selectedUnit = null
+        pic = createUnit(UIConfig.PLAYER, UIConfig.DUMMY_TYPE, vec2(0, 0), angle(0))
+        applySkin(pic, texture)
+        animIdx = findModelAnimIndex(w, h, this.z)
+        pic..setAnimation(animIdx)
+           ..addAbility(UIConfig.DESTROYER_FORM_ID)
+           ..removeAbility(UIConfig.DESTROYER_FORM_ID)
+           ..addAbility(UIConfig.SKIN_CHANGE_ABILITY)
+           ..addAbility(GHOST_VIS_ID)
+        unitId = pic.getUserData()
+        unit2Button[unitId] = this
+        pic.setScale(0)
+
+    override function destr()
+        pic.remove()
+        if displayed
+            btnList.remove(this)
+
+    override function update()
+        if displayed
+            vec3 pos = cam.win2World(centerX, centerY, z)
+            pic..setPos(pos.toVec2())
+               ..setFlyHeight(pos.z - pos.getTerrainZ(), 0)
+
+    override function show(boolean flag, Camera cam)
+        if cam != null
+            this.cam = cam
+        if flag != displayed
+            if flag
+                btnList.add(this)
+                update()
+                pic.setAnimation(animIdx)
+                SetUnitScale(pic, scale, 0, 0)
+            else
+                btnList.remove(this)
+                pic..setPos(vec2(0, 0))
+                   ..setScale(0)
+        displayed = flag
+
+    override function setPosition(real minx, real maxy)
+        minX = minx
+        maxX = minx + width
+        minY = maxy - height
+        maxY = maxy
+        centerX = minx + width / 2
+        centerY = maxy - width / 2
+        if displayed
+            update()
+
+    function showPlayer(player p, boolean flag, Camera cam)
+        show(flag, cam)
+        if flag
+            SetUnitScale(pic, localReal(p, scale, 0), 0, 0)
+
+    function isClicked(real x, real y) returns boolean
+        return minX < x and x < maxX and minY < y and y < maxY
+
+    function isDisabled() returns boolean
+        return disabled
+
+    function setDisabled(boolean dis)
+        disabled = dis
+
+    function getCenterX() returns real
+        return centerX
+    function getCenterY() returns real
+        return centerY
+
+    function clickL()
+        clickedButton = this
+        if trigL != null and trigL.evaluate()
+            trigL.execute()
+        if onLClick != null
+            evaluate(onLClick)
+
+    function clickR()
+        clickedButton = this
+        if trigR != null and trigR.evaluate()
+            trigR.execute()
+        if onRClick != null
+            evaluate(onRClick)
+
+    function setTexture(int texture)
+        pic.setPos(vec2(0, 0))
+        applySkin(pic, texture)
+        if displayed
+            update()
+        this.texture = texture
+    
+    function getPic() returns unit
+        return pic
+
+    static function click(unit u, boolean isLeft) returns boolean
+        if u.getTypeId() == UIConfig.DUMMY_TYPE
+            UIButton b = unit2Button[u.getUserData()]
+            if  b != null and b.displayed
+                SelectUnit(u, false)
+                if isLeft
+                    b.clickL()
+                else
+                    b.clickR()
+                return true
+        return false
+
+    static function clickEx(real x, real y, boolean isLeft) returns boolean
+        for btn in btnList
+            if btn.isClicked(x, y)
+                if isLeft
+                    btn.clickL()
+                else
+                    btn.clickR()
+                return true
+        return false
+
+    static function clickPeriodicSelect(player p, boolean isLeft) returns boolean
+        for btn in btnList
+            if IsUnitSelected(btn.pic, p)
+                if not btn.disabled
+                    if isLeft
+                        btn.clickL()
+                    else
+                        btn.clickR()
+                    if useDelay
+                        btn.disabled = true
+                        doAfter(UIConfig.LEFT_CLICK_DELAY) () ->
+                            btn.disabled = false
+                    return true
+                SelectUnit(btn.pic, false)
+                if btn.selectedUnit != null and localPlayer == p
+                    SelectUnit(btn.selectedUnit, true)
+        return false
+
+public class UIPicture extends UI
+    int animIdx
+    private real scale
+    private real centerX
+    private real centerY
+    private real width
+    private real height
+    private unit pic
+    private int texture
+
+    construct(real minx, real maxy, real w, real h, real z, int texture)
+        super(z)
+        this.texture = texture
+        width = w
+        height = h
+        centerX = minx + w / 2
+        centerY = maxy - h / 2
+        scale = findModelSize(w, h, this.z)
+        pic = createUnit(UIConfig.PLAYER, UIConfig.DUMMY_TYPE, vec2(0, 0), angle(0))
+        applySkin(pic, texture)
+        animIdx = findModelAnimIndex(w, h, this.z)
+        pic..setAnimation(animIdx)
+           ..addAbility(UIConfig.DESTROYER_FORM_ID)
+           ..removeAbility(UIConfig.DESTROYER_FORM_ID)
+           ..addAbility(GHOST_VIS_ID)
+           ..removeAbility(GHOST_VIS_ID)
+           ..setScale(0)
+
+    construct(real minx, real maxy, real z, real scale, int unitId, real modelWidth, real modelHeight, int texture)
+        super(z)
+        width = modelWidth * scale / SCREEN_WIDTH * this.z
+        height = modelHeight * scale / SCREEN_HEIGHT * this.z
+        this.scale = scale
+        centerX = minx + width / 2
+        centerY = maxy - height / 2
+        pic = createUnit(UIConfig.PLAYER, unitId, vec2(0, 0), angle(270))
+        applySkin(pic, texture)
+        pic..addAbility(UIConfig.DESTROYER_FORM_ID)
+           ..removeAbility(UIConfig.DESTROYER_FORM_ID)
+           ..addAbility(GHOST_VIS_ID)
+           ..removeAbility(GHOST_VIS_ID)
+           ..setScale(0)
+
+    override function destr()
+        pic.remove()
+        if displayed
+            picList.remove(this)
+
+    override function update()
+        if this.displayed
+            vec3 pos = this.cam.win2World(centerX, centerY, z)
+            pic..setPos(pos.toVec2())
+               ..setFlyHeight(pos.z - pos.getTerrainZ(), 0)
+
+    override function show(boolean show, Camera cam)
+        if cam != null
+            this.cam = cam
+        if show != displayed
+            if show
+                picList.add(this)
+                update()
+                pic.setAnimation(animIdx)
+                SetUnitScale(pic, scale, 0, 0)
+            else
+                picList.remove(this)
+                pic..setPos(vec2(0, 0))
+                   ..setScale(0)
+        displayed = show
+    
+    override function setPosition(real minx, real maxy)
+        centerX = minx + width / 2
+        centerY = maxy - height / 2
+        if displayed
+            update()
+
+    function showPlayer(player p, boolean flag, Camera cam)
+        show(flag, cam)
+        if flag
+            SetUnitScale(pic, localReal(p, scale, 0), 0, 0)
+
+    function setTexture(int texture)
+        pic.setPos(vec2(0, 0))
+        applySkin(pic, texture)
+        if displayed
+            update()
+        this.texture = texture
+
+public class UIText extends UI
+    private unit dummy
+    private real minX
+    private real maxY
+    private texttag text
+
+    construct(real minx, real maxy, real z)
+        super(z)
+        minX = minx
+        maxY = maxy
+        text = CreateTextTag()
+        dummy = createUnit(UIConfig.PLAYER, UIConfig.DUMMY_TYPE, vec2(0, 0), angle(0))
+        dummy..setScale(0)
+             ..addAbility(LOCUST_ID)
+             ..removeAbility(LOCUST_ID)
+        text.setVisibility(false)
+        SetTextTagPosUnit(text, dummy, 0)
+    
+    construct(player p, real minx, real maxy, real z)
+        super(z)
+        minX = minx
+        maxY = maxy
+        if localPlayer == p
+            text = CreateTextTag()
+        dummy = createUnit(UIConfig.PLAYER, UIConfig.DUMMY_TYPE, vec2(0, 0), angle(0))
+        dummy..setScale(0)
+             ..addAbility(LOCUST_ID)
+             ..removeAbility(LOCUST_ID)
+        text.setVisibility(false)
+        SetTextTagPosUnit(text, dummy, 0)
+
+    override function destr()
+        text.destr()
+        if displayed
+            textList.remove(this)
+
+    override function update()
+        vec3 pos = cam.win2World(minX, maxY, z)
+        dummy.setPos(pos.toVec2())
+        SetTextTagPosUnit(text, dummy, pos.z - pos.getTerrainZ() - 14.8)
+
+    override function setPosition(real minx, real maxy)
+        minX = minx
+        maxY = maxy
+        if displayed
+            update()
+
+    override function show(boolean flag, Camera cam)
+        if cam != null
+            this.cam = cam
+        text.setVisibility(flag)
+        if flag != displayed
+            if flag
+                textList.add(this)
+                update()
+            else
+                textList.remove(this)
+        displayed = flag
+
+class UIX
+    use UIConfig
+    static function getRaceBorders(race r) returns int
+        return RACE_BORDERS_START + GetHandleId(r) - 1
+    
+    static function updateAll(boolean btn, boolean pic, boolean text)
+        if btn
+            for t in btnList
+                t.update()
+        if pic
+            for t in picList
+                t.update()
+        if text
+            for t in textList
+                t.update()
+
+    function createWindow(real x, real y, real size, real width, real height, race playerRace) returns UIPicture
+        return new UIPicture(x, y, 2, size, UIConfig.WINDOW_DUMMY, width, height, UIX.getRaceBorders(playerRace))
+    
+    static function getLeftClickTimer() returns boolean
+        return UIConfig.LEFT_CLICK_TIMER
+    
+    static function getLeftClickTimerRate() returns real
+        return UIConfig.LEFT_CLICK_TIMER_RATE
+
+function interfaceClickR()
+    unit clicker = GetTriggerUnit()
+    unit btnUnit = GetOrderTargetUnit()
+    clickingPlayer = clicker.getOwner()
+    if UIButton.click(btnUnit, false)
+        clicker..pause()
+               ..issueImmediateOrderById(851973)
+               ..unpause()
+
+function interfaceClickL()
+    clickingPlayer = GetTriggerPlayer()
+    UIButton.click(GetTriggerUnit(), true)
+
+function interfaceClickLTimed()
+    for user in userList
+        clickingPlayer = user.getPlayer()
+        UIButton.clickPeriodicSelect(user.getPlayer(), true)
+
+init
+    trigger t = CreateTrigger()
+    trigger t2 = CreateTrigger()
+    for user in userList
+        t.registerPlayerUnitEvent(user.getPlayer(), EVENT_PLAYER_UNIT_ISSUED_ORDER, null)
+        if not UIX.getLeftClickTimer()
+            t2.registerPlayerUnitEvent(user.getPlayer(), EVENT_PLAYER_UNIT_SELECTED, null)
+    t.addAction(() -> interfaceClickR())
+    if UIX.getLeftClickTimer()
+        doPeriodically(UIX.getLeftClickTimerRate()  ) (CallbackPeriodic cb) ->
+            interfaceClickLTimed()
+    else
+        t2.addAction(() -> interfaceClickL())
+    UIButton.useDelay = UIX.getLeftClickTimer()
+
+public function getTriggerButton() returns UIButton
+    return clickedButton
+
+public function getClickingPlayer() returns player
+    return clickingPlayer
+
+public function evaluate(filterfunc func) returns boolean
+    trig..clearConditions()
+        ..addCondition(func)
+    return trig.evaluate()
+
+public function findModelAnimIndex(real w, real h, real z) returns int
+    real width = w * SCREEN_WIDTH * z
+    real height = h * SCREEN_HEIGHT * z
+    real anim
+    if height < width
+        anim = 10 * (width / height - 1)
+        return r2i(anim)
+    else
+        anim = 10 * (height / width - 1)
+        if anim >= 0.5
+            return 100 + r2i(anim)
+    return 0
+
+public function findModelSize(real w, real h, real z) returns real
+    real width = w * SCREEN_WIDTH * z
+    real height = h * SCREEN_HEIGHT * z
+    if height < width
+        return 0.5 * height
+    return 0.5 * width
+
+function localReal(player p, real forPlayer, real def) returns real
+    if localPlayer == p
+        return forPlayer
+    return def
+
+public function applySkin(unit u, int texture) returns boolean
+    boolean out = false
+    if texture != 0
+        u.addAbility('Skin')
+        dummyTree = createDestructable(texture, u.getPos(), angle(0), 0, 1)
+        out = u.issueTargetOrder("grabtree", dummyTree)
+        dummyTree.remove()
+        dummyTree = null
+        u.removeAbility('Skin')
+    return out

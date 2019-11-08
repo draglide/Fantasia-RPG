@@ -1,0 +1,29 @@
+package Mob
+import EUnit
+import IterableRegion
+import ClosureTimers
+public class Mob extends EUnit
+    private IRegion reg
+    construct(int uID, real resT, boolean pat)
+        super(uID, resT)
+        patroller = pat
+    function isKited() returns boolean
+        if isPatroller()
+            return reg.isVecInRegion(cUnit.getPos())
+        return loc.distanceTo(cUnit.getPos()) > 5000
+    function reset()
+        if isPatroller()
+            cUnit.setPos(reg.getRandomLocInReg())
+        else
+            cUnit.setPos(loc)
+    override function reSpawn()
+        doAfter(resTime) ->
+            cUnit.revive(reg.getRandomLocInReg(), TRUE)
+    function destr()
+        reg.destr()
+        a.destr()
+        cUnit.remove()
+        cUnit = null
+        destroy this
+    function getReg() returns IRegion
+        return reg

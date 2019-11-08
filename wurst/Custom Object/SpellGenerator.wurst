@@ -1,0 +1,19 @@
+package SpellGenerator
+import ObjectIdGenerator
+import AbilityObjEditing
+public constant CERBE_CHARGE_ID = compiletime(ABIL_ID_GEN.next())
+@compiletime function gen()
+    new AbilityDefinitionFireBolt(CERBE_CHARGE_ID)
+        ..setLevels(1)
+        ..setName("Charge")
+        ..setArtEffect("")
+        ..setCastingTime(1, 1)
+        ..setCooldown(1, 6)
+        ..setDamage(1, 0)
+        ..setDurationHero(1, 0)
+        ..setDurationNormal(1, 0)
+        ..setHeroAbility(FALSE)
+        ..setMissileArt("")
+        ..setManaCost(1, 0)
+        ..setCastRange(1, 2000)
+        ..presetHotkey("E")

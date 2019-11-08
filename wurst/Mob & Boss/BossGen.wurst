@@ -1,0 +1,6 @@
+package BossGen
+import EUnit
+public class Boss extends EUnit
+    construct(int uID)
+        super(uID, -1)
+    override function reSpawn()

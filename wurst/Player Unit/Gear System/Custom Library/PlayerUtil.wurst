@@ -1,0 +1,35 @@
+package PlayerUtil
+import LinkedList
+import CameraLib
+public LinkedList<User> userList = new LinkedList<User>()
+init
+    for i = 0 to 8
+        if GetPlayerController(players[i]) == MAP_CONTROL_USER and GetPlayerSlotState(players[i]) == PLAYER_SLOT_STATE_PLAYING
+            let p = new User(players[i])
+            p.setDummyCam()
+            userList.add(p)
+class User
+    static constant int NULL = 15
+    
+    private playercolor originalHex
+    private string originalName
+    private player pHandle
+    private unit dummyCam
+    construct(player p)
+        pHandle = p
+        originalName = p.getName()
+        originalHex = p.getColor()
+    function getPlayer() returns player
+        return pHandle
+    function setCustomName()
+        pHandle.setName("")
+    function setDummyCam()
+        dummyCam = createUnit(CAMERA_DUMMY_PLAYER, CAMERA_DUMMY_TYPE, vec2(0, 0), angle(0))
+        dummyCam.hide()
+        dummyCam.pause()
+    function getDummyCam() returns unit
+        return dummyCam
+    function onLeave()
+        dummyCam.remove()
+        userList.remove(this)
+        destroy this

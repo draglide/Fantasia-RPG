@@ -1,0 +1,60 @@
+package CustomGearSlot
+enum CG_SLOT
+    HELM
+    SHOULDER
+    CHEST
+    GLOVES
+    BELT
+    LEGS
+    BOOTS
+    WINGS
+    RING_1
+    RING_2
+    AMULET
+    MAINHAND
+    OFFHAND
+function item.setSlot()
+function item.getSlot() returns CG_SLOT
+    return CG_SLOT.HELM
+//public class CGearSlot
+    /*private CGear array[13] gear
+    function calcAtt(string s) returns real
+        real tot = 0
+        for int i = 0 to 12
+            tot += gear[i].getAtt(s)
+        return tot
+    function setGear(string slot, CGear i)
+        gear[getIdx(slot)] = i
+    function getGear(string slot) returns CGear
+        return gear[getIdx(slot)]
+    private function getIdx(string slot) returns int
+        switch slot
+            case "HELM"
+                return 0
+            case "SHOULDER"
+                return 1
+            case "CHEST"
+                return 2
+            case "GLOVES"
+                return 3
+            case "BELT"
+                return 4
+            case "LEGS"
+                return 5 
+            case "BOOTS"
+                return 6
+            case "WINGS"
+                return 7
+            case "RING-1"
+                return 8
+            case "RING-2"
+                return 9
+            case "AMULET"
+                return 10
+            case "MAINHAND"
+                return 11
+            case "OFFHAND"
+                return 12
+            default
+                return -1
+    */

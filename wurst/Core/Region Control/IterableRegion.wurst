@@ -1,0 +1,27 @@
+package IterableRegion
+import HashMap
+public class IRegion
+    let regL = new IterableMap<int, rect>()
+    function getRandomLocInReg() returns vec2
+        return regL.get(GetRandomInt(1, regL.size())).randomPoint()
+    function destr()
+        for k in regL
+            regL.getAndRemove(k).remove()
+        destroy this
+    function addRect(rect rct)
+        if regL.size() > 0
+            regL.put(regL.size() + 1, rct)
+        else
+            regL.put(1, rct)
+    function clearRect(rect rct)
+        for k in regL
+            if regL.get(k) == rct
+                regL.remove(k)
+                if k < regL.size()
+                    regL.put(k, regL.getAndRemove(k))
+                rct.remove()
+    function isVecInRegion(vec2 r) returns boolean
+        for k in regL
+            if regL.get(k).contains(r)
+                return true
+        return false

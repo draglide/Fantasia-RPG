@@ -1,0 +1,127 @@
+package Inventory
+import CameraLib
+import UserInterface
+import ClosureTimers
+class Inventory
+    static real X = 0.61
+    static real Y = -0.3
+    static real SCALE = 0.228
+    static real TOOLTIP_X = -0.7
+    static real TOOLTIP_Y = 0.0
+    static int MAX_PAGES = 5
+    static constant int BUTTON_ROWS = 6
+    static constant int BUTTON_COLS = 5
+    static constant real UI_REFRESH_RATE = 0.01
+    static constant boolean SHOW_ERR = true
+    static constant real SLOT_WIDTH = 0.065
+    static constant real SLOT_HEIGHT = 0.065 * SCREEN_ASPECT_RATIO
+    static constant real SLOT_SPACING = 1.0
+    static constant real SLOT_OFFSET_X = -0.0485
+    static constant real SLOT_OFFSET_Y = 0.072
+
+    static constant int ICON_EMPTY          = 'CI00'
+    static constant int ICON_TRANSPARENT    = 'CI01'
+    static constant int ICON_PAGEUP         = 'CI02'
+    static constant int ICON_PAGEDOWN       = 'CI03'
+    static constant int ICON_SELL           = 'CI04'
+    static constant int ICON_DROP           = 'CI05'
+
+    static constant int RACE_BORDERS_START  = 'D000'
+    static constant int BACKGROUND          = 'D001'
+
+    static constant int MAX_SLOTS = BUTTON_ROWS * BUTTON_COLS
+    static constant int MAX_ITEMS = MAX_SLOTS * MAX_PAGES
+
+    static trigger execL = CreateTrigger()
+    static trigger execR = CreateTrigger()
+
+    private int currentPage = 0
+    private unit owner
+    private boolean displayed
+    private UIPicture background
+    private UIText pageNum
+    private UIButton btnPageUp
+    private UIButton btnPageDown
+    private UIButton btnSell
+    private UIButton btnDrop
+    private UIPicture selector
+    private UIButton array[MAX_SLOTS] itemSlot
+    Camera cam
+    function localInt(int pid, int val, int other) returns int
+        if localPlayer.getHandleId() != pid
+            return other
+        return val
+    function createButtons()
+        int row = 0
+        int col = 0
+        if btnPageUp == null
+            btnPageUp = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - col * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEUP)
+            btnPageDown = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - (BUTTON_COLS - 1) * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEDOWN)
+            btnSell = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.300, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_SELL)
+            btnDrop = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.300, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_DROP)
+    
+    function disableButtonIfUsingTimer(UIButton btn, real time)
+        if UIX.getLeftClickTimer()
+            btn.setDisabled(true)
+            doAfter(time) () ->
+                btn.setDisabled(false)
+
+    private function onDisplay()
+        
+        cam.setPosition(owner.getX(), owner.getY(), owner.getDefaultFlyHeight() + vec2(owner.getX(), owner.getY()).getTerrainZ())
+        if cam.applyCameraForPlayer(owner.getOwner(), false)
+            UIX.updateAll(true, true, true)
+
+    function show(boolean flag, Camera cam)
+        if flag != displayed
+            if not displayed
+                doPeriodically(UI_REFRESH_RATE) (CallbackPeriodic cb) ->
+                    if not displayed
+                        ResetToGameCamera(0)
+                        destroy cb
+                    onDisplay()
+            else
+                ResetToGameCamera(0)
+        displayed = flag
+        this.cam = cam
+        btnPageUp.show(flag, cam)
+        btnPageDown.show(flag, cam)
+        btnSell.show(flag, cam)
+        btnDrop.show(flag, cam)
+        background.show(flag, cam)
+        pageNum.show(flag, cam)
+        for i = 0 to 29
+            itemSlot[i].show(flag, cam)
+
+    private function leftClickItemSlot() returns boolean
+        UIButton btn = getTriggerButton()
+        player p = getClickingPlayer()
+        int slot = btn.getCustVal()
+        if localPlayer == p
+            SelectUnit(btn.getPic(), false)
+            SelectUnit(owner, true)
+        if btn.isDisabled()
+            return false
+        if btn == btnSell
+
+            disableButtonIfUsingTimer(btn, 0.5)
+        else if btn == btnDrop
+
+            disableButtonIfUsingTimer(btn, 0.5)
+        else if btn == btnPageDown
+            currentPage++
+            if currentPage == MAX_PAGES
+                currentPage = 0
+            disableButtonIfUsingTimer(btn, 0.1)
+            return false
+        else if btn == btnPageUp
+            currentPage--
+            if currentPage < 0
+                currentPage = MAX_PAGES - 1
+            disableButtonIfUsingTimer(btn, 0.1)
+            return false
+        else
+            selector.setPosition(btn.getCenterX() - 0.004, btn.getCenterY() + 0.0262)
+            selector.showPlayer(owner.getOwner(), true, cam)
+        return false
+        
