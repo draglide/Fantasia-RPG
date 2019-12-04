@@ -2,14 +2,14 @@ package PUnit
 import GenericUnit
 import CustomStat
 public class PUnit extends GUnit
-    CStat stat
+    private CStat stat
     construct(unit u, boolean load)
         cUnit = u
         if load
         else
             stat = new CStat(u)
-            u..setMaxHP(stat.getAtt().getPoint(CustomAtt.HP), TRUE)
-             ..setMaxMana(stat.getAtt().getPoint(CustomAtt.MP), TRUE)
+            u..setMaxHP(stat.getAtt().getPoint(CustomAtt.HP), true)
+             ..setMaxMana(stat.getAtt().getPoint(CustomAtt.MP), true)
              ..setStr(R2I(stat.getMStat().getPoint(MainStat.POWER)))
              ..setAgi(R2I(stat.getMStat().getPoint(MainStat.AGILITY)))
              ..setInt(R2I(stat.getMStat().getPoint(MainStat.ENERGY)))
@@ -17,5 +17,8 @@ public class PUnit extends GUnit
              ..setPos(loc)
     override function reSpawn()
         resTime = cUnit.getLevel()/2
+
     function setStatBoard()
-        
+
+    function getStat() returns CStat
+        return stat

@@ -1,19 +1,31 @@
 package InventoryItem
-import LinkedList
-import CustomStat
-class InventoryItem
-    private int id
-    private int icon
-    private int cost
-    private LinkedList<int> abilList = new LinkedList<int>()
-    private MStat stat
+import CustomItem
+
+public class InvItem
+    private CItem cItem
     private string info
-    construct(int id, int icon, int cost, string info)
-        this.id = id
-        this.icon = icon
-        this.cost = cost
+    private boolean bound
+    private int forge
+    construct(CItem cItem, string info, boolean bound, int forge)
+        this.cItem = cItem
         this.info = info
-        stat = new MStat(new CAtt(false))
-    function addAbil(vararg int abil)
-        for a in abil
-            abilList.add(a)
+        this.bound = bound
+        this.forge = forge
+
+    function setItem(CItem c)
+        cItem = c
+
+    function getItem() returns CItem
+        return cItem
+
+    function isBound() returns boolean
+        return bound
+
+    function setBound(boolean b)
+        bound = b
+
+    function getForge() returns int
+        return forge
+
+    function setForge(int f)
+        forge = f

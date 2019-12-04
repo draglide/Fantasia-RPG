@@ -1,0 +1,76 @@
+package SkillTreeItem
+import UserInterface
+import CameraLib
+module SkillTreeItemConfig
+    static constant real POINT_OFFSET_X = 0.06
+    static constant real POINT_OFFSET_Y = 0.16
+    static constant real BUTTON_OFFSET_X = 0.15
+    static constant real BUTTON_OFFSET_Y = 0.26
+    static constant real SLOT_WIDTH   = 0.080
+    static constant real SLOT_HEIGHT  = 0.080 * SCREEN_ASPECT_RATIO
+
+public class SkillTreeItem
+    use SkillTreeItemConfig
+    private string array[6] description
+    private int maxPoint
+    private int point
+    private boolean locked
+    private string name
+    private UIButton slot
+    private UIText sPoint
+    private int lvlReq
+
+    construct(string n, vec2 start, int x, int y, int texture, player p, int m)
+        name = n
+        locked = true
+        point = 0
+        slot = new UIButton(start.x + BUTTON_OFFSET_X * x, start.y - BUTTON_OFFSET_Y * y, SLOT_WIDTH, SLOT_HEIGHT, 10, texture, p)
+        sPoint = new UIText(start.x + BUTTON_OFFSET_X * x + POINT_OFFSET_X, start.y - BUTTON_OFFSET_Y * y - POINT_OFFSET_Y, 9, p)
+        maxPoint = m
+
+    function show(boolean flag, Camera cam)
+        slot.show(flag, cam)
+        sPoint.show(flag, cam)
+        if isLocked()
+            sPoint.getText().setText("X", 8)
+        else
+            sPoint.getText().setText(I2S(point), 8)
+
+    function getName() returns string
+        return name
+
+    function setLvlReq(int lvl)
+        lvlReq = lvl
+
+    function getLvlReq() returns int
+        return lvlReq
+
+    function isLocked() returns boolean
+        return locked
+
+    function unlock(boolean u)
+        locked = not u
+
+    function getPoint() returns int
+        return point
+
+    function resetPoint()
+        point = 0
+
+    function addPoint()
+        point++
+
+    function getDescription(int idx) returns string
+        return description[idx]
+
+    function addDescription(int i, string s)
+        description[i - 1] = s
+
+    function getButton() returns UIButton
+        return slot
+
+    function isFullyLearned() returns boolean
+        return point == maxPoint
+
+    function isNotLearned() returns boolean
+        return point == 0

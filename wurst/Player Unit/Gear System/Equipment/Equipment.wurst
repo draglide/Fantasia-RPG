@@ -1,0 +1,88 @@
+package Equipment
+import CameraLib
+import UserInterface
+import Inventory
+import InventoryItem
+module EquipmentConfig
+    static constant real X = 0.425
+    static constant real Y = 0.93
+    static constant real WINDOW_SIZE = 0.28
+    static constant real SLOT_OFFSET_Y = 0.065
+    static constant real SLOT_OFFSET_RIGHT_X = 0.46
+    static constant real SLOT_OFFSET_LEFT_X = 0.105
+    static constant real HERO_NAME_Y = 0.9
+    static constant real MODEL_OFFSET_X = X + 0.32
+    static constant real MODEL_OFFSET_Y = 0.2
+    static constant int MAX_SLOT = 14
+    static constant real SLOT_WIDTH   = 0.090
+    static constant real SLOT_HEIGHT  = 0.090 * SCREEN_ASPECT_RATIO
+    static constant integer MODEL_DUMMY  = 'e000'
+    static constant integer WINDOW_DUMMY = 'ui02'
+
+public class Equipment
+    use EquipmentConfig
+
+    private UIButton array[MAX_SLOT] slotBtn
+    private UIPicture array[MAX_SLOT] slotPic
+    private InvItem array[MAX_SLOT] gear
+    private UIPicture pics
+    private UIText nameTag
+    private UIPicture selector
+
+    private UIPicture heroModel
+    private unit owner
+    private Camera cam
+    private player p
+    construct(unit u)
+        this.owner = u
+        p = u.getOwner()
+        initUI()
+
+    private function initUI()
+        real x1 = X + SLOT_OFFSET_LEFT_X
+        real x2 = X + SLOT_OFFSET_RIGHT_X
+        real y = Y - SLOT_OFFSET_Y
+        selector = new UIPicture(X - 0.15, Y + SLOT_OFFSET_Y - 0.25, 0, 0.7, 'e001', 1, 1, 0, p)
+        selector..setAnimIdx(56)
+                ..show(false, cam)
+        selector.getPic().addEffect("UI\\TRSHerolevel.mdx", "origin")
+
+        slotBtn[0] = new UIButton(x1, y, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE00', p)
+        slotBtn[1] = new UIButton(x1, y - SLOT_HEIGHT * 1, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE02', p)
+        slotBtn[2] = new UIButton(x1, y - SLOT_HEIGHT * 2, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE03', p)
+        slotBtn[3] = new UIButton(x1, y - SLOT_HEIGHT * 3, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE04', p)
+        slotBtn[4] = new UIButton(x1, y - SLOT_HEIGHT * 4, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE05', p)
+        slotBtn[5] = new UIButton(x1, y - SLOT_HEIGHT * 5, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE08', p)
+
+        slotBtn[6] = new UIButton(x2, y, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE09', p)
+        slotBtn[7] = new UIButton(x2, y - SLOT_HEIGHT * 1, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE01', p)
+        slotBtn[8] = new UIButton(x2, y - SLOT_HEIGHT * 2, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE0B', p)
+        slotBtn[9] = new UIButton(x2, y - SLOT_HEIGHT * 3, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE0C', p)
+        slotBtn[10] = new UIButton(x2, y - SLOT_HEIGHT * 4, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE0A', p)
+        slotBtn[11] = new UIButton(x2, y - SLOT_HEIGHT * 5, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE08', p)
+
+        slotBtn[12] = new UIButton(x1 + SLOT_WIDTH * 1.5, y - SLOT_HEIGHT * 5, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE06', p)
+        slotBtn[13] = new UIButton(x2 - SLOT_WIDTH * 1.5, y - SLOT_HEIGHT * 5, SLOT_WIDTH, SLOT_HEIGHT, 10, 'CE07', p)
+
+        for i = 0 to 13
+            slotBtn[i]..setCustVal(i)
+                      ..setSelector(owner)
+            slotPic[i] = new UIPicture(slotBtn[i].getMinX() + SLOT_WIDTH / 6.3, slotBtn[i].getMaxY() - 0.022, SLOT_WIDTH * 0.7, SLOT_HEIGHT * 0.7, 9, Inventory.ICON_TRANSPARENT, p)
+
+        pics = new UIPicture(X, Y, 11, WINDOW_SIZE, WINDOW_DUMMY, 140, 130, Inventory.BORDERS, p)
+
+        heroModel = new UIPicture(MODEL_OFFSET_X, MODEL_OFFSET_Y, 5, 0.1, MODEL_DUMMY, 1, 1, 0, p)
+        heroModel..setAnimIdx(140)
+        heroModel.getPic().addEffect("", "origin")
+
+        nameTag = new UIText(X/1.4, 0.1, 1, p)
+
+    function equip(InvItem itm) returns boolean
+        return false
+
+    function show(boolean flag, Camera cam)
+        this.cam = cam
+        pics.show(flag, cam)
+        for i = 0 to 13
+            slotBtn[i].show(flag, cam)
+            slotPic[i].show(flag, cam)

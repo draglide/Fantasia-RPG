@@ -1,0 +1,67 @@
+package ItemList
+import CustomItem
+import CustomStat
+CEquipment array equipList
+init
+    //Iron Sword
+    equipList[0] = new CMainHand("Iron Sword", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 0)
+    equipList[0].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+
+    equipList[1] = new CMainHand("Iron Sword of Power", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 1)
+    equipList[1].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[1].getStat().setPoint(MainStat.POWER, 2)
+    
+    equipList[2] = new CMainHand("Iron Sword of Agility", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 2)
+    equipList[2].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[2].getStat().setPoint(MainStat.AGILITY, 2)
+
+    equipList[3] = new CMainHand("Iron Sword of Energy", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 3)
+    equipList[3].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[3].getStat().setPoint(MainStat.ENERGY, 2)
+
+    equipList[4] = new CMainHand("Iron Sword of Magic", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 4)
+    equipList[4].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[4].getAtt().setPoint(CustomAtt.MAGICAL_POWER, 4)
+
+    equipList[5] = new CMainHand("Iron Sword of Severity", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 5)
+    equipList[5].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[5].getAtt().setPoint(CustomAtt.PHYSICAL_POWER, 4)
+
+    equipList[6] = new CMainHand("Iron Sword of Protection", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 6)
+    equipList[6].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[6].getAtt().setPoint(CustomAtt.ARMOR, 4)
+
+    equipList[7] = new CMainHand("Iron Sword of Life", 24, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 1, 0, 7)
+    equipList[7].getAtt().setPoint(CustomAtt.DAMAGE, 5)
+    equipList[7].getAtt().setPoint(CustomAtt.HP, 8)
+    //Copper Sword
+    equipList[8] = new CMainHand("Copper Sword", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 8)
+    equipList[8].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+
+    equipList[9] = new CMainHand("Copper Sword of Power", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 9)
+    equipList[9].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[9].getStat().setPoint(MainStat.POWER, 4)
+    
+    equipList[10] = new CMainHand("Copper Sword of Agility", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 10)
+    equipList[10].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[10].getStat().setPoint(MainStat.AGILITY, 4)
+
+    equipList[11] = new CMainHand("Copper Sword of Energy", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 11)
+    equipList[11].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[11].getStat().setPoint(MainStat.ENERGY, 4)
+
+    equipList[12] = new CMainHand("Copper Sword of Magic", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 12)
+    equipList[12].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[12].getAtt().setPoint(CustomAtt.MAGICAL_POWER, 8)
+
+    equipList[13] = new CMainHand("Copper Sword of Severity", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 13)
+    equipList[13].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[13].getAtt().setPoint(CustomAtt.PHYSICAL_POWER, 8)
+
+    equipList[14] = new CMainHand("Copper Sword of Protection", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 14)
+    equipList[14].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[14].getAtt().setPoint(CustomAtt.ARMOR, 9)
+
+    equipList[15] = new CMainHand("Copper Sword of Life", 60, MAINHAND_TYPE.SWORD, RARITY.NORMAL, 6, 0, 15)
+    equipList[15].getAtt().setPoint(CustomAtt.DAMAGE, 10)
+    equipList[15].getAtt().setPoint(CustomAtt.HP, 15)

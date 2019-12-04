@@ -1,0 +1,288 @@
+package CustomItem
+import CustomStat
+enum SLOT
+    HELM
+    SHOULDER
+    CHEST
+    GLOVES
+    BELT
+    LEGS
+    BOOTS
+    WINGS
+    RING
+    AMULET
+    MAINHAND
+    OFFHAND
+    SOUL
+
+enum OFFHAND_TYPE
+    DUAL_SWORD
+    DUAL_AXE
+    SHIELD
+    DUAL_DAGGER
+    QUIVER
+    ORB
+    BOOK
+    IDOL
+
+enum MAINHAND_TYPE
+    SWORD
+    AXE
+    HAMMER
+    DAGGER
+    CROSSBOW
+    LONGBOW
+    STAFF
+    MACE
+
+enum ARMOR_TYPE
+    MAIL
+    CLOTH
+    LEATHER
+
+enum RARITY
+    NORMAL
+    RARE        
+    EPIC        //+3
+    MYTHIC      //+6
+    LEGEND      //+6
+    ARTIFACT    //+9
+    ALMIGHTY    //+10
+    GODLY       //+10
+
+public class CItem
+    protected string name
+    protected int price
+    protected RARITY rrt
+    protected int icon
+    protected int userData
+    construct(string nm, int pr, RARITY r, int ic, int usrDt)
+        name = nm
+        price = pr
+        rrt = r
+        icon = ic
+        userData = usrDt
+
+    function getPrice() returns int
+        return price
+
+    function getRarity() returns RARITY
+        return rrt
+
+    function getIcon() returns int
+        return icon
+
+    function getUserData() returns int
+        return userData
+
+public class CEquipment extends CItem
+    protected CAtt itemAtt
+    protected MStat itemStat
+    protected SLOT slot
+    protected int levelReq
+    construct(string nm, int p, RARITY r, SLOT s, int lvlReq, int ic, int userData)
+        super(nm, p, r, ic, userData)
+        itemAtt = new CAtt(false)
+        itemStat = new MStat(itemAtt)
+        slot = s
+        levelReq = lvlReq
+
+    function getSlot() returns SLOT
+        return slot
+
+    function getAtt() returns CAtt
+        return itemAtt
+
+    function getStat() returns MStat
+        return itemStat
+
+    function getLevelReq() returns int
+        return levelReq
+
+public class CMainHand extends CEquipment
+    private MAINHAND_TYPE m
+    construct(string nm, int p, MAINHAND_TYPE mt, RARITY r, int lvlReq, int ic, int userData)
+        super(nm, p, r, SLOT.MAINHAND, lvlReq, ic, userData)
+        m = mt
+
+    function getMainHandType() returns MAINHAND_TYPE
+        return m
+
+public class COffHand extends CEquipment
+    private OFFHAND_TYPE o
+    construct(string nm, int p, OFFHAND_TYPE ot, RARITY r, int lvlReq, int ic, int userData)
+        super(nm, p, r, SLOT.OFFHAND, lvlReq, ic, userData)
+        o = ot
+
+    function getOffHandType() returns OFFHAND_TYPE
+        return o
+
+public class CArmor extends CEquipment
+    private ARMOR_TYPE armor
+    construct(string nm, int p, SLOT s, ARMOR_TYPE a, RARITY r, int lvlReq, int ic, int userData)
+        super(nm, p, r, s, lvlReq, ic, userData)
+        armor = a
+
+    function getArmorType() returns ARMOR_TYPE
+        return armor
+
+public function ARMOR_TYPE.toString() returns string
+    switch this
+        case MAIL
+            return "Mail"
+        case LEATHER
+            return "Leather"
+        case CLOTH
+            return "Cloth"
+
+public function RARITY.toString() returns string
+    switch this
+        case NORMAL
+            return "Normal"
+        case RARE
+            return "Rare"
+        case EPIC
+            return "Epic"
+        case MYTHIC
+            return "Mythic"
+        case LEGEND
+            return "Legend"
+        case ARTIFACT
+            return "Artifact"
+        case ALMIGHTY
+            return "Almighty"
+        case GODLY
+            return "Godly"
+
+public function SLOT.toString() returns string
+    switch this
+        case HELM
+            return "Helm"
+        case SHOULDER
+            return "Shoulder"
+        case CHEST
+            return "Chest"
+        case GLOVES
+            return "Gloves"
+        case BELT
+            return "Belt"
+        case LEGS
+            return "Legs"
+        case BOOTS
+            return "Boots"
+        case WINGS
+            return "Wings"
+        case RING
+            return "Ring"
+        case AMULET
+            return "Amulet"
+        case MAINHAND
+            return "Main Hand"
+        case OFFHAND
+            return "Off Hand"
+        case SOUL
+            return "Soul"
+
+public function MAINHAND_TYPE.toString() returns string
+    switch this
+        case SWORD
+            return "Sword"
+        case AXE
+            return "Axe"
+        case HAMMER
+            return "Hammer"
+        case DAGGER
+            return "Dagger"
+        case CROSSBOW
+            return "Cross Bow"
+        case LONGBOW
+            return "Long Bow"
+        case STAFF
+            return "Staff"
+        case MACE
+            return "Mace"
+
+public function OFFHAND_TYPE.toString() returns string
+    switch this
+        case DUAL_SWORD
+            return "Dual Sword"
+        case DUAL_AXE
+            return "Dual Axe"
+        case SHIELD
+            return "Shield"
+        case DUAL_DAGGER
+            return "Dual Dagger"
+        case QUIVER
+            return "Quiver"
+        case ORB
+            return "Orb"
+        case BOOK
+            return "Book"
+        case IDOL
+            return "Idol"
+
+public function spawnItem(CItem c, vec2 pos)
+    item i
+    if c instanceof CMainHand
+        CMainHand temp = c castTo CMainHand
+        switch temp.getMainHandType()
+            case SWORD
+                i = createItem('1', pos)
+            case AXE
+                i = createItem('1', pos)
+            case HAMMER
+                i = createItem('1', pos)
+            case DAGGER
+                i = createItem('1', pos)
+            case CROSSBOW
+                i = createItem('1', pos)
+            case LONGBOW
+                i = createItem('1', pos)
+            case STAFF
+                i = createItem('1', pos)
+            case MACE
+                i = createItem('1', pos)
+    else if c instanceof COffHand
+        COffHand temp = c castTo COffHand
+        switch temp.getOffHandType()
+            case DUAL_SWORD
+                i = createItem('1', pos)
+            case DUAL_AXE
+                i = createItem('1', pos)
+            case SHIELD
+                i = createItem('1', pos)
+            case DUAL_DAGGER
+                i = createItem('1', pos)
+            case QUIVER
+                i = createItem('1', pos)
+            case ORB
+                i = createItem('1', pos)
+            case BOOK
+                i = createItem('1', pos)
+            case IDOL
+                i = createItem('1', pos)
+    else if c instanceof CArmor
+        CArmor temp = c castTo CArmor
+        switch temp.getArmorType()
+            case MAIL
+                i = createItem('1', pos)
+            case LEATHER
+                i = createItem('1', pos)
+            case CLOTH
+                i = createItem('1', pos)
+        i.setUserData(c.getUserData())
+    else if c instanceof CEquipment
+        CEquipment temp = c castTo CEquipment
+        if temp.getSlot() == WINGS
+            i = createItem('1', pos)
+        else if temp.getSlot() == RING
+            i = createItem('1', pos)
+        else if temp.getSlot() == AMULET
+            i = createItem('1', pos)
+        else if temp.getSlot() == SOUL
+            i = createItem('1', pos)
+        else
+            i = createItem('1', pos)
+    else
+        i = createItem('1', pos)
+    i.setUserData(c.getUserData())

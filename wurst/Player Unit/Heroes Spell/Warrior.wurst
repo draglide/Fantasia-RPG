@@ -1,0 +1,29 @@
+package Warrior
+import ClosureEvents
+import PlayerUtil
+import CustomStat
+init
+    EventListener.onTargetCast('AMW0') (unit caster, unit target) ->
+        User u = getUser(caster.getOwner())
+        real dmg = u.getUnit().getStat().getAtt().getPoint(CustomAtt.PHYSICAL_POWER)
+        if u.getSkillTree().getSkill(1).getPoint() == 3
+            if u.getSkillTree().getSkill(4).getPoint() == 1
+            else
+                group temp = null
+                temp.enumUnitsInRange(target.getPos(), 100)
+                for mob in temp
+                    if mob == caster
+                        skip
+                    if mob.getOwner().isAllyOf(caster.getOwner())
+                        skip
+                    caster.damageTarget(mob, 0.75 * dmg)
+        if isBoss(target)
+            dmg *= (u.getSkillTree().getSkill(0).getPoint() * 0.1 + 1.05)
+        dmg *= (u.getSkillTree().getSkill(1).getPoint() * 0.15 + 1)
+        caster.damageTarget(target, dmg)
+
+function isBoss(unit u) returns boolean
+    switch u.getTypeId()
+        case 'A'
+            return true
+    return false

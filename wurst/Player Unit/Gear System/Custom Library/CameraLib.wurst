@@ -149,6 +149,3 @@ public class Camera
                     axisX.y,            axisY.y,            axisZ.y,            0,
                     axisX.z,            axisY.z,            axisZ.z,            0,
                     -axisX.dot(posCam), -axisY.dot(posCam), -axisZ.dot(posCam), 1)
-
-    function getCameraDeltaZ() returns real
-        return deltaZ

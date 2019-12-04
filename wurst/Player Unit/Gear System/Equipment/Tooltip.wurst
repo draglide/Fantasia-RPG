@@ -1,0 +1,63 @@
+package Tooltip
+import UserInterface
+import CameraLib
+import SkillTreeItem
+module TooltipConfig
+    static constant integer TOOLTIP_LINE_LENGTH = 32
+    static constant integer TOOLTIP_MAX_LINES   = 15
+    static constant integer TOOLTIP_TEXTURE     = 'CI06'
+    static constant real TOOLTIP_LINE_SPACING   = .05
+    static constant real TOOLTIP_FONT_SIZE      = 7.5
+    static constant integer TOOLTIP_BACKGROUND  = 'ui03'
+
+public class Tooltip
+    use TooltipConfig
+
+    private UIText array[TOOLTIP_MAX_LINES] info
+    private UIText title
+    private UIText description
+    private UIPicture box
+    private unit owner
+
+    construct(unit u)
+        owner = u
+        title = new UIText(0, 0, 1, u.getOwner())
+        description = new UIText(0, 0, 1, u.getOwner())
+        box = new UIPicture(0, 0, 0.2, 0.1, TOOLTIP_BACKGROUND, 120, 60, TOOLTIP_TEXTURE, u.getOwner())
+        box.getPic().setVertexColor(COLOR_WHITE)
+        for i = 0 to TOOLTIP_MAX_LINES - 1
+            info[i] = new UIText(0, 0, 1, u.getOwner())
+
+    function setTitle(string text, colorA col)
+        title.getText().setText(text, 9)
+        title.getText().setColor(col)
+
+    function setDescription(string text, colorA col)
+        description.getText().setText(text, TOOLTIP_FONT_SIZE + 0.5)
+        description.getText().setColor(col)
+
+    function clearInfo()
+        for i = 0 to TOOLTIP_MAX_LINES - 1
+            info[i].getText().setText("", TOOLTIP_FONT_SIZE)
+
+    function showTooltip(real x, real y, Camera cam)
+        title.setPosition(x - 0.15, y + 0.1)
+        description.setPosition(x - 0.11, y + 0.022)
+        box.setPosition(x, y)
+        for i = 0 to TOOLTIP_MAX_LINES - 1
+            info[i].setPosition(x - 0.15, y - 0.09 - TOOLTIP_LINE_SPACING * i)
+        showTooltip(true, cam)
+
+    function showTooltip(boolean flag, Camera cam)
+        title.show(flag, cam)
+        description.show(flag, cam)
+        box.show(flag, cam)
+        for i = 0 to TOOLTIP_MAX_LINES - 1
+            info[i].show(flag, cam)
+
+    function buildSkillTreeTooltip(SkillTreeItem s)
+        setTitle(s.getName(), colorA(0, 0, 255, 255))
+        setDescription("Level Requirment : "+I2S(s.getLvlReq()), colorA(255, 255, 255, 255))
+        clearInfo()
+        for i = 0 to 5
+            info[i].getText().setText(s.getDescription(i), TOOLTIP_FONT_SIZE - 0.5)

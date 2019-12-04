@@ -1,0 +1,17 @@
+package ChatEvent
+import ClosureEvents
+import PlayerUtil
+init
+    EventListener.add(EVENT_PLAYER_CHAT_FILTER) () ->
+        player p = GetTriggerPlayer()
+        string chat = GetEventPlayerChatString()
+        if chat.substring(0, 1) == "-"
+            switch chat.substring(1)
+                case "inv"
+                    getUser(p).showInventoryEquipment(true)
+                    leftClick.enable()
+                    rightClick.enable()
+                case "st"
+                    getUser(p).showSkillTree(true)
+                    leftClick.enable()
+                    rightClick.enable()

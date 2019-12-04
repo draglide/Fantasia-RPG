@@ -1,0 +1,266 @@
+package SkillTree
+import CameraLib
+import UserInterface
+import SkillTreeItem
+import Inventory
+import LinkedList
+import CustomStat
+import initlater PlayerUtil
+import Tooltip
+module SkillTreeConfig
+    static constant real X = -0.07
+    static constant real Y = 0.6
+    static constant real WINDOW_SIZE = 0.35
+    static constant real HERO_NAME_Y = 0.9
+    static constant integer WINDOW_DUMMY = 'ui02'
+    static constant real CONNECTOR_X = 0.07
+    static constant real CONNECTOR_Y = 0.12
+
+public class SkillTree
+    use SkillTreeConfig
+
+    private CAtt skillBonus
+    private player p
+    private unit owner
+    private UIPicture array[3] background
+    private LinkedList<UIPicture> connector
+    private Camera cam
+    private SkillTreeItem array[20] skillItem
+    private Tooltip tooltip
+    private integer pointSpent
+
+    construct(unit u)
+        u.setLevel(30, true)
+        skillBonus = new CAtt(false)
+        owner = u
+        p = u.getOwner()
+        connector = new LinkedList<UIPicture>()
+        initUI()
+        background[0] = new UIPicture(X - 0.999, Y, 11, WINDOW_SIZE, WINDOW_DUMMY, 140, 130, Inventory.BORDERS, p)
+        background[1] = new UIPicture(X - 0.333, Y, 11, WINDOW_SIZE, WINDOW_DUMMY, 140, 130, Inventory.BORDERS, p)
+        background[2] = new UIPicture(X + 0.333, Y, 11, WINDOW_SIZE, WINDOW_DUMMY, 140, 130, Inventory.BORDERS, p)
+        tooltip = new Tooltip(u)
+        pointSpent = 0
+
+    private function initUI()
+        vec2 start = vec2(X - 0.86, Y - 0.08)
+        switch owner.getTypeId()
+            case 'HM00'
+                skillItem[0] = new SkillTreeItem("Raging Blow", start, 0, 0, 'CSW1', p, 3)
+                skillItem[0].setLvlReq(0)
+                skillItem[0].unlock(true)
+                skillItem[0].addDescription(1, "Do damage and stunt mob for 1/1.5/2 sec or do 15%/25%/35% more damage to boss")
+
+                connector.add(newConnector(start, true, 0, 0))
+
+                skillItem[1] = new SkillTreeItem("Improved Raging Blow", start, 1, 0, 'CSW4', p, 3)
+                skillItem[1].setLvlReq(8)
+                skillItem[1].addDescription(1, "Increase Raging Blow damage by 15%/30%/45%")
+                skillItem[1].addDescription(2, "Third Point : Do small damage around target / Defensive Stance -> Taunt target")
+
+                skillItem[2] = new SkillTreeItem("Ground Slam", start, 2, 0, 'CSWA', p, 3)
+                skillItem[2].setLvlReq(0)
+                skillItem[2].unlock(true)
+                skillItem[2].addDescription(1, "Do Damage to surrounding unit")
+
+                connector.add(newConnector(start, true, 2, 0))
+
+                skillItem[3] = new SkillTreeItem("Improved Ground Slam", start, 3, 0, 'CSWB', p, 3)
+
+                skillItem[4] = new SkillTreeItem("Defensive Stance", start, 0, 1, 'CSW0', p, 1)
+                skillItem[4].setLvlReq(4)
+                skillItem[4].addDescription(1, "Increase Aggro generation by 10%. Allowance the usage of Shield.")
+                skillItem[4].addDescription(2, "Change some spell into defensive spell")
+
+                connector.add(newConnector(start, true, 0, 1))
+
+                skillItem[5] = new SkillTreeItem("Shield Mastery", start, 1, 1, 'CSW3', p, 2)
+                skillItem[5].setLvlReq(8)
+                skillItem[5].addDescription(1, "Increase block chance by 4%/8%")
+
+                connector.add(newConnector(start, true, 1, 1))
+
+                skillItem[6] = new SkillTreeItem("Shield Bash", start, 2, 1, 'CSW5', p, 3)
+                skillItem[6].setLvlReq(20)
+                skillItem[6].addDescription(1, "")
+
+                connector.add(newConnector(start, true, 2, 1))
+
+                skillItem[7] = new SkillTreeItem("Improved Shield Bash", start, 3, 1, 'CSWF', p, 3)
+                skillItem[7].setLvlReq(26)
+
+                connector.add(newConnector(start, false, 0, 1))
+
+                skillItem[8] = new SkillTreeItem("Iron Blood", start, 0, 2, 'CSW9', p, 3)
+                skillItem[8].setLvlReq(10)
+                skillItem[8].addDescription(1, "Increase armor by 10/20/30 + (30%/60%/100%) * lvl")
+
+                skillItem[9] = new SkillTreeItem("Parry", start, 1, 2, 'CSWC', p, 2)
+                skillItem[9].setLvlReq(14)
+                skillItem[9].addDescription(1, "Increase dodge chance by 3%/6%")
+
+                skillItem[10] = new SkillTreeItem("Offensive/Defensive Roar", start, 2, 2, 'CSW6', p, 3)
+                skillItem[10].setLvlReq(16)
+                skillItem[10].addDescription(1, "Offensive : Increase attack damage by 20/40/60 + (50%/100%/150%) * lvl for 30 sec")
+                skillItem[10].addDescription(2, "Defensive : Reduce damge taken by 40%/70%/90% for 3 sec")
+                skillItem[10].addDescription(3, "Third point : Apply buff to nearby ally / Taunt nearby enemy")
+
+                connector.add(newConnector(start, true, 2, 2))
+
+                skillItem[11] = new SkillTreeItem("Improved Offensive/Defensive Roar", start, 3, 2, 'CSW7', p, 3)
+                skillItem[11].setLvlReq(22)
+                skillItem[11].addDescription(1, "Offensive : Do 100%/150%/200% damage to")
+                skillItem[11].addDescription(2, "nearby enemy")
+                skillItem[11].addDescription(3, "Defensive : Increase duration by 1/2/3 sec")
+                skillItem[11].addDescription(4, "Third point : Knockback nearby enemy / Apply")
+                skillItem[11].addDescription(5, "buff to nearby ally")
+
+                skillItem[12] = new SkillTreeItem("Sword Mastery", start, 0, 3, 'CSW2', p, 2)
+                skillItem[12].setLvlReq(6)
+                skillItem[12].addDescription(1, "Increase damage from equiped sword by 25%/50%")
+
+                connector.add(newConnector(start, true, 0, 3))
+
+                skillItem[13] = new SkillTreeItem("Dual Wielding", start, 1, 3, 'CSW8', p, 1)
+                skillItem[13].setLvlReq(12)
+                skillItem[13].addDescription(1, "Allow usage of Dual Sword")
+
+                connector.add(newConnector(start, true, 1, 3))
+
+                skillItem[14] = new SkillTreeItem("Sword Dance", start, 2, 3, 'CSWD', p, 3)
+                skillItem[14].setLvlReq(20)
+
+                connector.add(newConnector(start, true, 2, 3))
+
+                skillItem[15] = new SkillTreeItem("Improved Sword Dance", start, 3, 3, 'CSWE', p, 3)
+
+                connector.add(newConnector(start, false, 3, 3))
+
+                skillItem[16] = new SkillTreeItem("Keen Eye", start, 0, 4, 'CSWI', p, 3)
+                skillItem[16].setLvlReq(6)
+                skillItem[16].addDescription(1, "Increase Crit Chance by by 3%/6%/9% + (0.05%/0.1%/0.15%) * lvl")
+
+                skillItem[17] = new SkillTreeItem("Lethality", start, 1, 4, 'CSWH', p, 3)
+                skillItem[17].setLvlReq(10)
+                skillItem[17].addDescription(1, "Increase Crit Damage by 10%/20%/30% + (0.3%/0.6%/0.9%) * lvl")
+
+                skillItem[18] = new SkillTreeItem("Stead Presence", start, 2, 4, 'CSWJ', p, 3)
+                skillItem[18].setLvlReq(16)
+                skillItem[18].addDescription(1, "Defensive : Increase Magic Resistance by 3%/6%/9%")
+                skillItem[18].addDescription(2, "Offensive : Increase Attackspeed by 10%/20%/30% + (0.2%/0.4%/0.6%) * lvl")
+                skillItem[18].addDescription(3, "Third point : Increase HP regen by 0.5 * lvl / Trigger double strike every 8th hit")
+
+                skillItem[19] = new SkillTreeItem("Empowered Sword Dance", start, 3, 4, 'CSWG', p, 3)
+                skillItem[19].setLvlReq(28)
+                skillItem[19].addDescription(1, "")
+
+        for i = 0 to 19
+            skillItem[i].getButton().setCustVal(i)
+            skillItem[i].getButton().setClickEvent(function showTooltip, false)
+            skillItem[i].getButton().setClickEvent(function addPoint, true)
+
+    private function newConnector(vec2 start, boolean s, int x, int y) returns UIPicture
+        if s
+            return new UIPicture(start.x + SkillTreeItem.BUTTON_OFFSET_X * x + CONNECTOR_X, start.y - SkillTreeItem.BUTTON_OFFSET_Y * y, SkillTreeItem.SLOT_WIDTH, SkillTreeItem.SLOT_HEIGHT, 10, 'D002', p)
+        return new UIPicture(start.x + SkillTreeItem.BUTTON_OFFSET_X * x, start.y - SkillTreeItem.BUTTON_OFFSET_Y * y - CONNECTOR_Y, SkillTreeItem.SLOT_WIDTH, SkillTreeItem.SLOT_HEIGHT, 10, 'D003', p)
+
+    function show(boolean flag, Camera cam)
+        skillTreeCheck()
+        this.cam = cam
+        for i = 0 to 2
+            background[i].show(flag, cam)
+        for i = 0 to 19
+            skillItem[i].show(flag, cam)
+        for c in connector
+            c.show(flag, cam)
+
+    function getSkill(int idx) returns SkillTreeItem
+        return skillItem[idx]
+
+    private function pointLeft() returns int
+        return owner.getLevel() - pointSpent
+
+    static function addPoint()
+        SkillTree temp = getSkillTree(GetTriggerPlayer())
+        SkillTreeItem skill = temp.getSkill(getUIX(GetTriggerPlayer()).getClickedButton().getCustVal())
+        if temp.pointLeft() > 0 and not skill.isLocked() and not skill.isFullyLearned()
+            skill.addPoint()
+            temp.pointSpent++
+        temp.show(true, temp.cam)
+        addAbility(temp, skill)
+
+    static function addAbility(SkillTree t, SkillTreeItem i)
+        switch t.owner.getTypeId()
+            case 'HM00'
+                if i == t.skillItem[0]
+                    t.owner.addAbility('AMW0')
+                else if i == t.skillItem[2]
+                    t.owner.addAbility('s')
+                else if i == t.skillItem[6]
+                    t.owner.addAbility('s')
+                else if i == t.skillItem[10]
+                    t.owner.addAbility('AMW1')
+                else if i == t.skillItem[14]
+                    t.owner.addAbility('s')
+
+    static function showTooltip()
+        SkillTree temp = getSkillTree(GetTriggerPlayer())
+        UIButton cButton = getUIX(GetTriggerPlayer()).getClickedButton()
+        real x = cButton.getMinX() - 0.4
+        real y = cButton.getMaxY() + 0.4
+        if x < -0.80
+            x += 0.66
+        if y >= 0.66
+            y -= 0.73
+        temp.tooltip.buildSkillTreeTooltip(temp.getSkill(cButton.getCustVal()))
+        temp.tooltip.showTooltip(x, y, temp.cam)
+
+    private function skillTreeCheck()
+        int lvl = owner.getLevel()
+        if owner.getTypeId() == 'HM00'
+            if skillItem[1].getLvlReq() <= lvl and skillItem[0].isFullyLearned()
+                skillItem[1].unlock(true)
+            if skillItem[3].getLvlReq() <= lvl and skillItem[2].isFullyLearned()
+                skillItem[3].unlock(true)
+            if skillItem[4].getLvlReq() <= lvl and skillItem[13].isNotLearned()
+                skillItem[4].unlock(true)
+            else
+                skillItem[4].unlock(false)
+            if skillItem[5].getLvlReq() <= lvl and skillItem[4].isFullyLearned()
+                skillItem[5].unlock(true)
+            if skillItem[6].getLvlReq() <= lvl and skillItem[5].isFullyLearned()
+                skillItem[6].unlock(true)
+            if skillItem[7].getLvlReq() <= lvl and skillItem[6].isFullyLearned()
+                skillItem[7].unlock(true)
+            if skillItem[8].getLvlReq() <= lvl and skillItem[4].isFullyLearned()
+                skillItem[8].unlock(true)
+            if skillItem[9].getLvlReq() <= lvl
+                skillItem[9].unlock(true)
+            if skillItem[10].getLvlReq() <= lvl
+                skillItem[10].unlock(true)
+            if skillItem[11].getLvlReq() <= lvl and skillItem[10].isFullyLearned()
+                skillItem[11].unlock(true)
+            if skillItem[12].getLvlReq() <= lvl
+                skillItem[12].unlock(true)
+            if skillItem[13].getLvlReq() <= lvl and skillItem[4].isNotLearned() and skillItem[12].isFullyLearned()
+                skillItem[13].unlock(true)
+            else
+                skillItem[13].unlock(false)
+            if skillItem[14].getLvlReq() <= lvl and skillItem[13].isFullyLearned()
+                skillItem[14].unlock(true)
+            if skillItem[15].getLvlReq() <= lvl and skillItem[14].isFullyLearned()
+                skillItem[15].unlock(true)
+            if skillItem[16].getLvlReq() <= lvl
+                skillItem[16].unlock(true)
+            if skillItem[17].getLvlReq() <= lvl
+                skillItem[17].unlock(true)
+            if skillItem[18].getLvlReq() <= lvl
+                skillItem[18].unlock(true)
+            if skillItem[19].getLvlReq() <= lvl and skillItem[15].isFullyLearned()
+                skillItem[19].unlock(true)
+
+function getSkillTree(player p) returns SkillTree
+    for u in userList
+        if u.getPlayer() == p
+            return u.getSkillTree()
+    return null

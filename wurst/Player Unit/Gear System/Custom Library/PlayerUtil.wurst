@@ -1,34 +1,136 @@
 package PlayerUtil
 import LinkedList
 import CameraLib
+import Inventory
+import PUnit
+import Equipment
+import UserInterface
+import ClosureTimers
+import SkillTree
 public LinkedList<User> userList = new LinkedList<User>()
+public trigger leftClick
+public trigger rightClick
 init
     for i = 0 to 8
         if GetPlayerController(players[i]) == MAP_CONTROL_USER and GetPlayerSlotState(players[i]) == PLAYER_SLOT_STATE_PLAYING
             let p = new User(players[i])
-            p.setDummyCam()
             userList.add(p)
-class User
-    static constant int NULL = 15
-    
+    leftClick = CreateTrigger()
+    rightClick = CreateTrigger()
+    for u in userList
+        rightClick.registerPlayerUnitEvent(u.getPlayer(), EVENT_PLAYER_UNIT_ISSUED_UNIT_ORDER, null)
+        if not UIX.isLeftClickTimed()
+            leftClick.registerPlayerUnitEvent(u.getPlayer(), EVENT_PLAYER_UNIT_SELECTED, null)
+        rightClick.addAction(() -> interfaceClickR())
+        if UIX.isLeftClickTimed()
+            doPeriodically(UIX.getLeftClickTimerRate()) (CallbackPeriodic cb) ->
+        else
+            leftClick.addAction(() -> interfaceClickL())
+    UIButton.useDelay = UIX.isLeftClickTimed()
+    leftClick.disable()
+    rightClick.disable()
+
+public function getUser(player p) returns User
+    for u in userList
+        if u.getPlayer() == p
+            return u
+    return null
+
+public class User
     private playercolor originalHex
     private string originalName
     private player pHandle
     private unit dummyCam
+    private Inventory inv
+    private PUnit hero
+    private Equipment equip
+    private SkillTree skill
+    private Camera cam
+    private UIX uiControl
+    private boolean invEqDisplayed
+    private boolean skillTreeDisplayed
     construct(player p)
         pHandle = p
         originalName = p.getName()
         originalHex = p.getColor()
+        setDummyCam()
+        uiControl = new UIX()
+        unit u = createUnit(Player(0), 'HM00', vec2(4766, 4555), angle(0))
+        hero = new PUnit(u, false)
+        cam = new Camera()
+        equip = new Equipment(u)
+        inv = new Inventory(u)
+        skill = new SkillTree(u)
+        invEqDisplayed = false
+
+    function getUnit() returns PUnit
+        return hero
+
+    function getUIX() returns UIX
+        return uiControl
+
     function getPlayer() returns player
         return pHandle
+
     function setCustomName()
         pHandle.setName("")
-    function setDummyCam()
+
+    private function setDummyCam()
         dummyCam = createUnit(CAMERA_DUMMY_PLAYER, CAMERA_DUMMY_TYPE, vec2(0, 0), angle(0))
         dummyCam.hide()
         dummyCam.pause()
+
     function getDummyCam() returns unit
         return dummyCam
+
+    function getCam() returns Camera
+        return cam
+
+    function getInventory() returns Inventory
+        return inv
+
+    function getEquipment() returns Equipment
+        return equip
+
+    function getSkillTree() returns SkillTree
+        return skill
+
+    private function onDisplay()
+        cam.setPosition(hero.getUnit().getX(), hero.getUnit().getY(), hero.getUnit().getDefaultFlyHeight() + hero.getUnit().getPos().getTerrainZ())
+        if cam.applyCameraForPlayer(pHandle, false)
+            uiControl.updateAll(true, true, true) 
+
+    function showInventoryEquipment(boolean flag)
+        if flag != invEqDisplayed
+            if not invEqDisplayed
+                doPeriodically(Inventory.UI_REFRESH_RATE) (CallbackPeriodic cb) ->
+                    if not invEqDisplayed
+                        ResetToGameCamera(0)
+                        destroy cb
+                    else
+                        onDisplay()
+            else
+                ResetToGameCamera(0)
+        invEqDisplayed = flag
+        inv.show(flag, cam)
+        equip.show(flag, cam)
+
+    function showSkillTree(boolean flag)
+        if invEqDisplayed == true
+            showInventoryEquipment(false)
+        if flag != skillTreeDisplayed
+            if not skillTreeDisplayed
+                doPeriodically(Inventory.UI_REFRESH_RATE) (CallbackPeriodic cb) ->
+                    if not skillTreeDisplayed
+                        ResetToGameCamera(0)
+                        destroy cb
+                    else
+                        onDisplay()
+            else
+                ResetToGameCamera(0)
+        skillTreeDisplayed = flag
+        skill.show(flag, cam)
+        
     function onLeave()
         dummyCam.remove()
         userList.remove(this)

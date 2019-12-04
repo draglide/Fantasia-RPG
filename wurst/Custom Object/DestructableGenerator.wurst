@@ -1,30 +1,206 @@
 package DestructableGenerator
 import DestructableObjEditing
-import ObjEditingNatives
 @compiletime function gen()
-    new IconPreset('CI00', "Belt Slot")
-        ..setModel("UI\\CModel\\Inventory\\Inv_Border.mdx")
+    new IconPreset('CI00', "Empty")
+        ..setTexture("UI\\Widgets\\Console\\Human\\human-inventory-slotfiller.blp")
+        ..setFlyOverHeight(0)
+        ..setMinimapRGB(0, 0, 0)
+        ..setOcclusionHeight(0)
+        ..setMaxScale(0)
+        ..setMinScale(0)
+
+    new IconPreset('CI01', "Nothing")
+        ..setTexture("UI\\CIcon\\Inventory\\Nothing.blp")
+        ..setFlyOverHeight(0)
+        ..setMinimapRGB(0, 0, 0)
+        ..setOcclusionHeight(0)
+        ..setMaxScale(0)
+        ..setMinScale(0)
+
+    new IconPreset('CI06', "Tooltip Border")
+        ..setTexture("UI\\CIcon\\tooltip-border.blp")
+        ..setFlyOverHeight(0)
+        ..setMinimapRGB(0, 0, 0)
+        ..setOcclusionHeight(0)
+        ..setMaxScale(0)
+        ..setMinScale(0)
+
+    new IconPreset('CI02', "Inv Page Down")
+        ..setTexture("UI\\CIcon\\Inventory\\BTNPageDown.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CI03', "Inv Page Up")
+        ..setTexture("UI\\CIcon\\Inventory\\BTNPageUp.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CI04', "Inv Close")
+        ..setTexture("UI\\CIcon\\Inventory\\Inv_Close.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CI05', "Inv Drop")
+        ..setTexture("UI\\CIcon\\Inventory\\Inv_Drop.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE00', "Slot Helm")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Helm.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE01', "Slot Shoulder")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Shoulder.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE02', "Slot Chest")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Chest.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE03', "Slot Belt")
         ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Belt.blp")
-        ..buildDestructable()
-        ..setSuffix("[Belt Slot]")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE04', "Slot Legs")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Legs.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE05', "Slot Boots")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Boots.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE06', "Slot MainHand")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Mainhand.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE07', "Slot OffHand")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Offhand.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE08', "Slot Ring")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Ring.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE09', "Slot Neck")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Neck.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE0A', "Slot Gloves")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Gloves.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE0B', "Slot Wing")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Wing.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CE0C', "Slot Soul")
+        ..setTexture("UI\\CIcon\\Inventory\\Equip_Slot_Soul.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW0', "Defensive Stance")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Shield.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW1', "Raging Blow")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Bash.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW2', "Sword Mastery")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Sword Mastery.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW3', "Block")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Block.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW4', "Improved Raging Blow")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\ImpBash.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW5', "Shield Bash")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Shield Bash.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW6', "Offensive/Defensive Roar")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Roar.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW7', "Improved Offensive/Defensive Roar")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\ImpRoar.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW8', "Dual Wielding")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Dual-Wield.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSW9', "Iron Blood")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Iron Blood.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWA', "Ground Slam")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Ground Slam.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWB', "Improved Ground Slam")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\ImpGround Slam.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWC', "Parry")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Parry.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWD', "Sword Dance")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Sword Dance.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWE', "Improved Sword Dance")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\ImpSword Dance.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWF', "Improved Shield Bash")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\ImpShield Bash.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWG', "Empowered Sword Dance")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\EmpSword Dance.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWH', "Lethality")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Lethality.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWI', "Keen Eye")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Keen Eye.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('CSWJ', "Stead Presence")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Warrior\\Stead Presence.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('D000', "Border")
+        ..setOcclusionHeight(0)
+        ..setTexture("UI\\Widgets\\EscMenu\\Human\\human-options-menu-border.blp")
+
+    new IconPreset('D002', "Line")
+        ..setTexture("UI\\CIcon\\Skill Tree\\Line.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('D003', "Line-Y")
+        ..setTexture("UI\\CIcon\\Skill Tree\\LineY.blp")
+        ..isPlacableOnCliff(true)
+
+    new IconPreset('D001', "Border-1")
+        ..setOcclusionHeight(0)
+        ..setTexture("UI\\Widgets\\EscMenu\\NightElf\\nightelf-options-menu-border.blp")
+
 class IconPreset extends DestructableDefinition
     construct(int newID, string name)
-        super(newID, 'YTlb')
+        super(newID, 'ATtc')
         setName(name)
-        setTextureId(32)
+        buildDestructable()
+
+    private function buildDestructable()
+        setMinimapVisible(false)
+        setModel(".mdl")
+        setModelVariation(1)
+        setGameSelectionSize(1)
+        setShadow("")
+        setCategory("Pathing Blockers")
+        setEditorSuffix("texture")
         setPath("")
-    function buildDestructable()
-        def.setReal("bfxr", 90.0)
-        def.setReal("boch", 0.0)
-        def.setReal("bsel", 0.0)
-        def.setReal("bgsc", 0.0)
-        def.setString("barm", "Ethereal")
-        def.setString("btar", "")
-        def.setBoolean("bcpr", FALSE)
-        def.setBoolean("btsp", FALSE)
-        def.setReal("bmas", 10.0)
-        def.setReal("bmis", 1.0)
-        def.setBoolean("bcpd", FALSE)
-        def.setBoolean("buch", FALSE)
-    function setSuffix(string s)
-        def.setString("bsuf", s)

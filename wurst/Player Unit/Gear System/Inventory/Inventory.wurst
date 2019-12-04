@@ -2,7 +2,10 @@ package Inventory
 import CameraLib
 import UserInterface
 import ClosureTimers
-class Inventory
+import InventoryItem
+import CustomItem
+import initlater PlayerUtil
+module InventoryConfig
     static real X = 0.61
     static real Y = -0.3
     static real SCALE = 0.228
@@ -11,8 +14,7 @@ class Inventory
     static int MAX_PAGES = 5
     static constant int BUTTON_ROWS = 6
     static constant int BUTTON_COLS = 5
-    static constant real UI_REFRESH_RATE = 0.01
-    static constant boolean SHOW_ERR = true
+    static constant real UI_REFRESH_RATE = 0.02
     static constant real SLOT_WIDTH = 0.065
     static constant real SLOT_HEIGHT = 0.065 * SCREEN_ASPECT_RATIO
     static constant real SLOT_SPACING = 1.0
@@ -21,107 +23,182 @@ class Inventory
 
     static constant int ICON_EMPTY          = 'CI00'
     static constant int ICON_TRANSPARENT    = 'CI01'
-    static constant int ICON_PAGEUP         = 'CI02'
-    static constant int ICON_PAGEDOWN       = 'CI03'
-    static constant int ICON_SELL           = 'CI04'
+    static constant int ICON_PAGEDOWN       = 'CI02'
+    static constant int ICON_PAGEUP         = 'CI03'
+    static constant int ICON_CLOSE          = 'CI04'
     static constant int ICON_DROP           = 'CI05'
 
-    static constant int RACE_BORDERS_START  = 'D000'
-    static constant int BACKGROUND          = 'D001'
+    static constant int BORDERS             = 'D000'
+    static constant int BACKGROUND          = 'ui01'
 
     static constant int MAX_SLOTS = BUTTON_ROWS * BUTTON_COLS
     static constant int MAX_ITEMS = MAX_SLOTS * MAX_PAGES
 
-    static trigger execL = CreateTrigger()
-    static trigger execR = CreateTrigger()
-
+public class Inventory
+    use InventoryConfig
+    private player p
     private int currentPage = 0
     private unit owner
-    private boolean displayed
     private UIPicture background
     private UIText pageNum
     private UIButton btnPageUp
     private UIButton btnPageDown
-    private UIButton btnSell
+    private UIButton btnClose
     private UIButton btnDrop
     private UIPicture selector
     private UIButton array[MAX_SLOTS] itemSlot
-    Camera cam
-    function localInt(int pid, int val, int other) returns int
-        if localPlayer.getHandleId() != pid
-            return other
-        return val
-    function createButtons()
-        int row = 0
-        int col = 0
-        if btnPageUp == null
-            btnPageUp = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - col * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEUP)
-            btnPageDown = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - (BUTTON_COLS - 1) * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEDOWN)
-            btnSell = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.300, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_SELL)
-            btnDrop = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.300, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_DROP)
-    
-    function disableButtonIfUsingTimer(UIButton btn, real time)
-        if UIX.getLeftClickTimer()
+    private Camera cam
+    private InvItem array[150] invList
+    private UIButton lastClick
+    construct(unit u)
+        owner = u
+        p = u.getOwner()
+        initUI()
+        background = new UIPicture(X, Y, 2, SCALE, BACKGROUND, 70, 60, BORDERS, p)
+
+    private function initUI()
+        pageNum = new UIText(X + 0.3, Y + 0.1, 1, p)
+
+        btnPageUp = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0 * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEUP, p)
+        btnPageDown = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - (BUTTON_COLS - 1) * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_PAGEDOWN, p)
+        btnClose = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.310, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_CLOSE, p)
+        btnDrop = new UIButton(X - 0.15, Y + SLOT_OFFSET_Y - 0.160, SLOT_WIDTH, SLOT_HEIGHT, 0.5, ICON_DROP, p)
+
+        btnPageUp.setSelector(owner)
+        btnPageDown.setSelector(owner)
+        btnClose.setSelector(owner)
+        btnDrop.setSelector(owner)
+
+        btnPageUp.setClickEvent(function pageUp, true)
+        btnPageDown.setClickEvent(function pageDown, true)
+        btnDrop.setClickEvent(function drop, true)
+        btnClose.setClickEvent(function close, true)
+
+        selector = new UIPicture(X - 0.15, Y + SLOT_OFFSET_Y - 0.25, 0, 0.55, 'e000', 1, 1, 0, p)
+        selector..setAnimIdx(56)
+                ..show(false, cam)
+        selector.getPic().addEffect("UI\\TRSHerolevel.mdx", "origin")
+
+        for i = 0 to 149
+            invList[i] = new InvItem(null, "", false, 0)
+
+        for i = 0 to BUTTON_COLS - 1
+            for j = 0 to BUTTON_ROWS - 1
+                itemSlot[j + i * BUTTON_ROWS] = new UIButton(X + SLOT_OFFSET_X + j * SLOT_WIDTH * SLOT_SPACING, Y + SLOT_OFFSET_Y - i * SLOT_HEIGHT * SLOT_SPACING, SLOT_WIDTH, SLOT_HEIGHT, 0.5, getIcon(invList[i + j * BUTTON_ROWS]), p)
+                itemSlot[j + i * BUTTON_ROWS]..setCustVal(j + i * BUTTON_ROWS)
+                                             ..setSelector(owner)
+                                             ..setClickEvent(function leftClickItemSlot, true)
+
+    function addItem(CItem itm) returns boolean
+        int slot = findFreeSlot()
+        if slot == -1
+            print("Your bag is full. Drop/Sell something to get more space.")
+            return false
+        invList[slot].setItem(itm)
+        return true
+
+    function findFreeSlot() returns int
+        for i = 0 to 149
+            if invList[i].getItem() == null
+                return i
+        return -1
+
+    private function getIcon(InvItem inv) returns int
+        if inv.getItem() == null
+            return ICON_EMPTY
+        return inv.getItem().getIcon()
+
+    function show(boolean flag, Camera cam)
+        this.cam = cam
+        btnPageUp.show(flag, cam)
+        btnPageDown.show(flag, cam)
+        btnClose.show(flag, cam)
+        btnDrop.show(flag, cam)
+        background.show(flag, cam)
+        pageNum.getText().setText(I2S(currentPage + 1)+"/"+I2S(MAX_PAGES), 10)
+        pageNum.show(flag, cam)
+        selector.show(flag, cam)
+        for i = 0 to 29
+            itemSlot[i].setTexture(getIcon(invList[currentPage * MAX_SLOTS + i]))
+            itemSlot[i].show(flag, cam)
+
+    function disableButton(UIButton btn, real time)
+        if UIX.isLeftClickTimed()
             btn.setDisabled(true)
             doAfter(time) () ->
                 btn.setDisabled(false)
 
-    private function onDisplay()
-        
-        cam.setPosition(owner.getX(), owner.getY(), owner.getDefaultFlyHeight() + vec2(owner.getX(), owner.getY()).getTerrainZ())
-        if cam.applyCameraForPlayer(owner.getOwner(), false)
-            UIX.updateAll(true, true, true)
+    static function pageUp()
+        Inventory temp = getInventory(GetTriggerPlayer())
+        temp.currentPage--
+        if temp.currentPage < 0
+            temp.currentPage = MAX_PAGES - 1
+            temp.disableButton(temp.btnPageUp, 0.5)
+        temp.show(true, temp.cam)
+        temp.lastClick = null
+        getUIX(GetTriggerPlayer()).setClickedBUtton(null)
 
-    function show(boolean flag, Camera cam)
-        if flag != displayed
-            if not displayed
-                doPeriodically(UI_REFRESH_RATE) (CallbackPeriodic cb) ->
-                    if not displayed
-                        ResetToGameCamera(0)
-                        destroy cb
-                    onDisplay()
-            else
-                ResetToGameCamera(0)
-        displayed = flag
-        this.cam = cam
-        btnPageUp.show(flag, cam)
-        btnPageDown.show(flag, cam)
-        btnSell.show(flag, cam)
-        btnDrop.show(flag, cam)
-        background.show(flag, cam)
-        pageNum.show(flag, cam)
-        for i = 0 to 29
-            itemSlot[i].show(flag, cam)
+    static function pageDown()
+        Inventory temp = getInventory(GetTriggerPlayer())
+        temp.currentPage++
+        if temp.currentPage == MAX_PAGES
+            temp.currentPage = 0
+            temp.disableButton(temp.btnPageUp, 0.5)
+        temp.show(true, temp.cam)
+        temp.lastClick = null
+        getUIX(GetTriggerPlayer()).setClickedBUtton(null)
 
-    private function leftClickItemSlot() returns boolean
-        UIButton btn = getTriggerButton()
-        player p = getClickingPlayer()
-        int slot = btn.getCustVal()
-        if localPlayer == p
-            SelectUnit(btn.getPic(), false)
-            SelectUnit(owner, true)
-        if btn.isDisabled()
-            return false
-        if btn == btnSell
+    static function drop()
+        Inventory temp = getInventory(GetTriggerPlayer())
+        int idx = temp.lastClick.getCustVal()
+        InvItem inv = temp.invList[MAX_SLOTS * temp.currentPage + idx]
+        if inv.getItem() == null
+            return
+        if inv.isBound()
+            print("Item is Bound")
+            return
+        spawnItem(inv.getItem(), temp.owner.getPos())
+        inv.setItem(null)
+        inv.setBound(false)
+        inv.setForge(0)
+        temp.lastClick = null
+        getUIX(GetTriggerPlayer()).setClickedBUtton(null)
 
-            disableButtonIfUsingTimer(btn, 0.5)
-        else if btn == btnDrop
+    static function close()
+        User u = getUser(GetTriggerPlayer())
+        u.showInventoryEquipment(false)
+        leftClick.disable()
+        rightClick.disable()
+        getUIX(GetTriggerPlayer()).setClickedBUtton(null)
 
-            disableButtonIfUsingTimer(btn, 0.5)
-        else if btn == btnPageDown
-            currentPage++
-            if currentPage == MAX_PAGES
-                currentPage = 0
-            disableButtonIfUsingTimer(btn, 0.1)
-            return false
-        else if btn == btnPageUp
-            currentPage--
-            if currentPage < 0
-                currentPage = MAX_PAGES - 1
-            disableButtonIfUsingTimer(btn, 0.1)
-            return false
+    static function leftClickItemSlot()
+        Inventory temp = getInventory(GetTriggerPlayer())
+        UIButton cButton = getUIX(GetTriggerPlayer()).getClickedButton()
+        InvItem invN = temp.invList[MAX_SLOTS * temp.currentPage + cButton.getCustVal()]
+        if temp.lastClick != null
+            if cButton != temp.lastClick
+                InvItem invL = temp.invList[MAX_SLOTS * temp.currentPage + temp.lastClick.getCustVal()]
+                swapInv(invL, invN)
+            temp.lastClick = null
+            temp.selector.show(false, temp.cam)
         else
-            selector.setPosition(btn.getCenterX() - 0.004, btn.getCenterY() + 0.0262)
-            selector.showPlayer(owner.getOwner(), true, cam)
-        return false
-        
+            temp.selector.showPlayer(temp.p, true, temp.cam)
+            temp.selector.setPosition(cButton.getCenterX() - 0.004, cButton.getCenterY() + 0.0262)
+            temp.lastClick = cButton
+
+function getInventory(player p) returns Inventory
+    for u in userList
+        if u.getPlayer() == p
+            return u.getInventory()
+    return null
+
+function swapInv(InvItem l, InvItem r)
+    CItem cTemp = l.getItem()
+    boolean bTemp = l.isBound()
+    int fTemp = l.getForge()
+    l.setBound(r.isBound())
+    l.setForge(r.getForge())
+    l.setItem(r.getItem())
+    r.setBound(bTemp)
+    r.setForge(fTemp)
+    r.setItem(cTemp)

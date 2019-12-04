@@ -37,6 +37,7 @@ enum CustomAtt
     ARMOR
     GOLD
     EXP
+    DAMAGE
 
 public class MStat
     private real array[3] mainStat
@@ -232,7 +233,7 @@ public class CStat
         uStat = 6*u.getLevel()
 
 public class CAtt
-    private real array[20] att
+    private real array[21] att
     construct(boolean hero)
         if hero
             resetHero()
@@ -281,6 +282,8 @@ public class CAtt
                 return att[18]
             case EXP
                 return att[19]
+            case DAMAGE
+                return att[20]
             default
                 return 0
 
@@ -326,6 +329,8 @@ public class CAtt
                 att[18] = val
             case EXP
                 att[19] = val
+            case DAMAGE
+                att[20] = val
 
     protected function addPoint(CustomAtt a, real p)
         switch a
@@ -369,9 +374,11 @@ public class CAtt
                 att[18] += p
             case EXP
                 att[19] += p
+            case DAMAGE
+                att[20] += p
     
     protected function reset()
-        for i = 0 to 19
+        for i = 0 to 20
             att[i] = 0
 
     protected function resetHero()
@@ -395,3 +402,4 @@ public class CAtt
         att[17] = 0 //AR
         att[18] = 0 //GOLD
         att[19] = 0 //EXP
+        att[20] = 0 //DAMAGE
